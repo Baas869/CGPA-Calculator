@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link} from 'react-router-dom'
+// import { Link, useNavigate } from 'react-router-dom'
 // import { toast } from 'react-toastify'
 // import {
 //   getAuth,
@@ -22,7 +23,7 @@ function Register() {
   })
   const { name, email, password } = formData
 
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
   const onChange = (e) => {
     setFormData((prevState) => ({
