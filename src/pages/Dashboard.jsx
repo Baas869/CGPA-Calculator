@@ -1,5 +1,5 @@
 import React from 'react'
-import Offers from './share/Offers'
+import Offers from '../components/share/Offers'
 
 function Dashboard() {
   return (

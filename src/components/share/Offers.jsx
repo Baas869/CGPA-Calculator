@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 // import Graph from './components/Graph';
 import Semester from '../semester/Semester.js';
 import SemesterButton from './SemesterButton.js';
-// import SemiCircleProgressBar from './components/SemiCircleProgressBar';
+import SemiCircleProgressBar from './CircleProgressBar.jsx';
 import { CourseObject, calculateCGPA } from '../../utils.js';
 
 
@@ -167,7 +167,7 @@ function Offers() {
         {/* Dialup section */}
         <div className='flex border-b-2  pb-3'>
           <div className='w-52  ml-auto mr-auto'>
-            {/* <SemiCircleProgressBar value={results.CGPA} /> */}
+            <SemiCircleProgressBar value={results.CGPA} />
   
           </div>
           <div className='flex flex-col'>
