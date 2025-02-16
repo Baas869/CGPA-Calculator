@@ -1,5 +1,5 @@
 import React from 'react'
-import { Heat  } from '@alptugidin/react-circular-progress-bar';
+import { Flat } from '@alptugidin/react-circular-progress-bar';
 
 
 function SemiCircleProgressBar({ value }) {
@@ -7,52 +7,31 @@ function SemiCircleProgressBar({ value }) {
     let value_int = (value / 5) * 100
     return (
 
-
-      <Heat
-        progress={value_int}
-        sign={{ value: '', position: 'start' }}
-        text={'Commulative GPA'}
-        revertBackground={true}
-        sx={{
-          bgColor: '#ffffff',
-          barWidth: 10,
-          shape: 'half',
-          valueSize: 20,
-          valueWeight: 'bold',
-          textSize: 9
-        }}
-      />
-
-      //   <Flat  
-      //     progress={value_int}
-      //     // range={{ from: 0, to: 100 }}
-      //     sign={{ value: value, position: 'end' }}
-      //     text={'CGPA'}
-      //     showMiniCircle={true}
-      //     showValue={true}
-      //     sx={{
-      //       strokeColor: '#ff0000',
-      //       barWidth: 10, 
-      //       bgStrokeColor: '#ffffff',
-      //       // bgColor: { value: '#000000', transparency: '20' },  
-      //       shape: 'half',
-      //       strokeLinecap: 'round',
-      //       valueSize: 13,
-      //       valueWeight: 'bold',
-      //       valueColor: '#000000',
-      //       valueFamily: 'Trebuchet MS',
-      //       textSize: 13,
-      //       textWeight: 'bold',
-      //       textColor: '#000000',
-      //       textFamily: 'Trebuchet MS',
-      //       loadingTime: 1000,
-      //       miniCircleColor: '#ff0000',
-      //       miniCircleSize: 5,
-      //       valueAnimation: true,
-      //       intersectionEnabled: true
-      //     }}
-      // />
-
+      <>
+        <Flat
+          progress={value_int}
+          text={value}
+          showValue={ false }
+          showMiniCircle={ false }
+          revertBackground={true}
+          sx={{
+            strokeColor: '#1eff00',
+            bgStrokeColor: '#564848',
+            barWidth: 10,
+            bgColor: { value: '#f5eaea', transparency: '20'},
+            shape: 'half',
+            textSize: 20,
+            textWeight: 'bold',
+            miniCircleColor: '#6600ff'
+          }}
+        />
+        <div style={{ fontSize: 24, marginTop: -90, textAlign:'center' }}>
+           {/* <strong style={{display: 'block'}}>{value}</strong> */}
+           <strong style={{display: 'block'}}>Comulative CGPA</strong>
+          {/* <small style={{fontSize: 12}}>Cumulative CGPA</small> */}
+        </div>
+      </>
+     
         // <Flat
         //     value={value_int}
         //     circleRatio={0.6}
