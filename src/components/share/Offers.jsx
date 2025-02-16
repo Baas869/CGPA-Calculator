@@ -17,9 +17,11 @@ function Offers() {
     let results = localStorage.getItem(localStorageKey);
     if (results !== null) {
       results = JSON.parse(results);
-    } else if (results === null || results.length < 0) {
+    }
+    if (!results || results.length === 0) {
       results = [{ courses: [new CourseObject("", 0, 5)] }];
     }
+
     setSemesters(results);
   }, []);
 
