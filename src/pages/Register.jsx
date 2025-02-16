@@ -1,130 +1,150 @@
-import { useState } from 'react'
-import { Link} from 'react-router-dom'
-// import { Link, useNavigate } from 'react-router-dom'
-// import { toast } from 'react-toastify'
-// import {
-//   getAuth,
-//   createUserWithEmailAndPassword,
-//   updateProfile,
-// } from 'firebase/auth'
-// import { setDoc, doc, serverTimestamp } from 'firebase/firestore'
-// import { db } from '../firebase.config'
-// import OAuth from '../components/OAuth'
-import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg'
-import visibilityIcon from '../assets/svg/visibilityIcon.svg'
+import { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
-function Register() {
+const Register = () => {
+  const { registerUser } = useContext(AuthContext);
+  const [formData, setFormData] = useState({ name: '', number: '' });
+  const navigate = useNavigate();
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-  })
-  const { name, email, password } = formData
-
-  // const navigate = useNavigate()
+  const { name, number } = formData;
 
   const onChange = (e) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      [e.target.id]: e.target.value,
-    }))
-  }
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
 
-  const onSubmit = async (e) => {
-    e.preventDefault()
-
-    // try {
-    //   const auth = getAuth()
-
-    //   const userCredential = await createUserWithEmailAndPassword(
-    //     auth,
-    //     email,
-    //     password
-    //   )
-
-    //   const user = userCredential.user
-
-    //   updateProfile(auth.currentUser, {
-    //     displayName: name,
-    //   })
-
-    //   const formDataCopy = { ...formData }
-    //   delete formDataCopy.password
-    //   formDataCopy.timestamp = serverTimestamp()
-
-    //   await setDoc(doc(db, 'users', user.uid), formDataCopy)
-
-    //   navigate('/')
-    // } catch (error) {
-    //   toast.error('Something went wrong with registration')
-    // }
-  }
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      await registerUser(formData);
+      // After successful registration and automatic login, navigate to payment or dashboard
+      navigate('/payment');
+    } catch (error) {
+      console.error('Registration failed:', error);
+      // Optionally, display error feedback to the user
+    }
+  };
 
   return (
-    <>
-    <div className='pageContainer'>
-      <header>
-        <p className='pageHeader'>Create Account!</p>
-      </header>
-
-      <form onSubmit={onSubmit}>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Register</h2>
+      <form onSubmit={handleRegister}>
         <input
-          type='text'
-          className='nameInput'
-          placeholder='Name'
-          id='name'
+          type="text"
+          className="nameInput mb-2 p-2 border rounded w-full"
+          placeholder="Name"
+          id="name"
           value={name}
           onChange={onChange}
         />
         <input
-          type='email'
-          className='emailInput'
-          placeholder='Email'
-          id='email'
-          value={email}
+          type="number"
+          className="emailInput mb-2 p-2 border rounded w-full"
+          placeholder="Enter your level"
+          id="number"
+          value={number}
           onChange={onChange}
         />
-
-        <div className='passwordInputDiv'>
-          <input
-            type={showPassword ? 'text' : 'password'}
-            className='passwordInput'
-            placeholder='Password'
-            id='password'
-            value={password}
-            onChange={onChange}
-          />
-
-          <img
-            src={visibilityIcon}
-            alt='show password'
-            className='showPassword'
-            onClick={() => setShowPassword((prevState) => !prevState)}
-          />
-        </div>
-
-        <Link to='/forgot-password' className='forgotPasswordLink'>
-          Forgot Password
-        </Link>
-
-        <div className='signUpBar'>
-          <p className='signUpText'>Sign Up</p>
-          <button className='signUpButton'>
-            <ArrowRightIcon fill='#ffffff' width='34px' height='34px' />
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Register
+        </button>
       </form>
-
-      {/* <OAuth /> */}
-
-      <Link to='/login' className='registerLink'>
-        Sign In Instead
-      </Link>
+      <p className="mt-4">
+        Already have an account?{' '}
+        <Link to="/login" className="text-green-500">
+          Login here
+        </Link>
+      </p>
     </div>
-  </>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { useContext, useState } from 'react';
+// import { useNavigate, Link } from 'react-router-dom';
+// import { AuthContext } from '../App';
+
+// const Register = () => {
+//   const { setUser } = useContext(AuthContext);
+//   const navigate = useNavigate();
+
+//   const [formData, setFormData] = useState({
+//     name: '',
+//     number: '',
+//   })
+//   const { name, number } = formData
+
+//   const handleRegister = () => {
+//     // Simulate successful registration by setting a user object
+//     setUser({ name: "New User" });
+//     // Redirect to Payment page so the user can complete payment
+//     navigate("/payment");
+//   };
+
+//   const onChange = (e) => {
+//     setFormData((prevState) => ({
+//       ...prevState,
+//       [e.target.id]: e.target.value,
+//     }))
+//   }
+
+//   const onSubmit = async (e) => {
+//     e.preventDefault()
+ 
+//   }
+
+//   return (
+//     <div className="container mx-auto p-4">
+//       <h2 className="text-2xl font-bold mb-4">Register</h2>
+//       {/* Your registration form elements go here */}
+//         <form onSubmit={onSubmit}>
+//             <input
+//               type='text'
+//               className='nameInput'
+//               placeholder='Name'
+//               id='name'
+//               value={name}
+//               onChange={onChange}
+//             />
+//             <input
+//               type='number'
+//               className='emailInput'
+//               placeholder='Enter your level'
+//               id='number'
+//               value={number}
+//               onChange={onChange}
+//             />
+//             <button 
+//               onClick={handleRegister}
+//               className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+//             >
+//               Register
+//             </button>
+//             <p className="mt-4">
+//               Already have an account? <Link to="/login" className="text-green-500">Login here</Link>
+//             </p>
+//         </form>
+//     </div>
+    
+//   );
+// };
+
+// export default Register;

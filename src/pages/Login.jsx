@@ -1,18 +1,18 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { AuthContext } from '../App';
+import { AuthContext } from '../context/AuthContext';
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg'
-import visibilityIcon from '../assets/svg/visibilityIcon.svg'
+// import visibilityIcon from '../assets/svg/visibilityIcon.svg'
 
 
 const Login = () => {
 
-  const [showPassword, setShowPassword] = useState(false)
+  // const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    name: '',
+    number: '',
   })
-  const { email, password } = formData
+  const { name, number } = formData
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -35,17 +35,26 @@ const Login = () => {
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Login</h2>
       {/* Your login form elements go here */}
-      <form>
+      <form onSubmit={handleLogin}>
           <input
-            type='email'
+            type='name'
             className='emailInput'
-            placeholder='Email'
-            id='email'
-            value={email}
+            placeholder='Enter your name to login'
+            id='name'
+            value={name}
             onChange={onChange}
           />
 
-          <div className='passwordInputDiv'>
+          <input
+              type='number'
+              className='emailInput'
+              placeholder='Enter your level'
+              id='number'
+              value={number}
+              onChange={onChange}
+            />
+
+          {/* <div className='passwordInputDiv'>
             <input
               type={showPassword ? 'text' : 'password'}
               className='passwordInput'
@@ -61,7 +70,7 @@ const Login = () => {
               className='showPassword'
               onClick={() => setShowPassword((prevState) => !prevState)}
             />
-          </div>
+          </div> */}
 
           <Link to='/forgot-password' className='forgotPasswordLink'>
             Forgot Password
