@@ -1,17 +1,9 @@
 {
   "users": [
     {
-      "id": "1",
+      "id": "1b8f",
       "name": "Baas",
-      "number": "100"
-    },
-    {
-      "id": "aef0",
-      "name": "Sulaiman ",
-      "number": "300"
+      "level": "100"
     }
-  ],
-  "login": [
-    
   ]
 }

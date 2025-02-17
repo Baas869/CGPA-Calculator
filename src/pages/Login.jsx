@@ -4,8 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ name: '', number: '' });
-  const { name, number } = formData;
+  const [formData, setFormData] = useState({ name: '', level: '' });
+  const { name, level } = formData;
   const { loginUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
@@ -24,8 +24,8 @@ const Login = () => {
     if (!name.trim()) {
       newErrors.name = "Name is required";
     }
-    if (!number.trim()) {
-      newErrors.number = "Level is required";
+    if (!level.trim()) {
+      newErrors.level = "Level is required";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -37,7 +37,7 @@ const Login = () => {
     setLoading(true);
     try {
       // Build the credentials object as expected by your API.
-      const credentials = { name, number };
+      const credentials = { name, level };
       await loginUser(credentials);
       // After successful login, navigate to the payment page.
       navigate("/payment");
@@ -63,14 +63,14 @@ const Login = () => {
         />
         {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         <input
-          type="number"
+          type="text"
           className="emailInput mb-2 p-2 border rounded w-full"
           placeholder="Enter your level"
-          id="number"
-          value={number}
+          id="level"
+          value={level}
           onChange={onChange}
         />
-        {errors.number && <p className="text-red-500 text-sm">{errors.number}</p>}
+        {errors.level && <p className="text-red-500 text-sm">{errors.level}</p>}
         <Link to="/forgot-password" className="forgotPasswordLink">
           Forgot Password
         </Link>

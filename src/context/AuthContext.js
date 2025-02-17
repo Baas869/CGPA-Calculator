@@ -8,20 +8,25 @@ export const AuthProvider = ({ children }) => {
   const [isPaid, setIsPaid] = useState(false);
 
   // Register user and automatically log them in.
-  // After registration, the calling component should direct the user to the dashboard.
-  // The payment status (isPaid) remains false until the user completes payment.
+  // After registration, the user is logged in and should be directed to the dashboard.
+  // Payment status (isPaid) remains false until the user completes payment.
   const registerUser = async (userData) => {
     try {
-      // Replace with your actual registration API endpoint.
-      const response = await axios.post('http://localhost:5000/users', userData);
+      // Post user data as JSON to the registration endpoint.
+      const response = await axios.post(
+        'https://cgpacalculator-0ani.onrender.com/students/auth/register',
+        userData,
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
       
-      // Assuming your API returns the registered user data and an auth token.
-      const { user: registeredUser, token } = response.data;
+      // Assuming your API returns:
+      // { message: "Registration successful", student: { ... }, token: "some-auth-token" }
+      const { student: registeredUser, token } = response.data;
       
-      // Set the user in context to automatically log them in.
+      // Automatically log the user in.
       setUser(registeredUser);
-      
-      // Store the token in local storage.
       localStorage.setItem('token', token);
       
       // Payment status remains false by default.
@@ -32,42 +37,46 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login function that fetches all users from the API and verifies if the credentials match.
-  // If successful, a dummy token is generated and the user is logged in.
-  // If the user is "Baas" with number "100", automatically mark as paid.
+  // Login function that posts credentials to the login endpoint.
+  // On success, the user is logged in and a token is stored.
+  // For the special user ("Baas" with level "100"), payment is automatically marked as complete.
   const loginUser = async (credentials) => {
     try {
-      // Fetch the list of registered users.
-      const response = await axios.get('http://localhost:5000/users');
-      const users = response.data;
-      
-      // Check if a user with the provided name and number exists.
-      const matchedUser = users.find(
-        (u) => u.name === credentials.name && u.number === credentials.number
+      // Post credentials as JSON to the login endpoint.
+      const response = await axios.post(
+        'https://cgpacalculator-0ani.onrender.com/students/auth/login',
+        credentials,
+        { headers: { 'Content-Type': 'application/json' } }
       );
-
-      if (matchedUser) {
-        // Simulate token generation.
-        const token = 'dummy-token';
-        setUser(matchedUser);
-        localStorage.setItem('token', token);
-
-        // If the user is "Baas" with number "100", automatically mark payment as complete.
-        if (matchedUser.name === "Baas" && matchedUser.number === "100") {
-          setIsPaid(true);
-        } else {
-          setIsPaid(false);
-        }
-
-        return { user: matchedUser, token };
-      } else {
-        throw new Error('Invalid credentials');
+      
+      // Log the API response to inspect its structure.
+      console.log('Login API response:', response.data);
+      
+      // Ensure the response contains a student and session_token (instead of user and token).
+      if (!response.data || !response.data.student || !response.data.session_token) {
+        throw new Error('Invalid login response: Missing student data or session token');
       }
+      
+      const { student: loggedInUser, session_token: token } = response.data;
+      
+      // Automatically log the user in.
+      setUser(loggedInUser);
+      localStorage.setItem('token', token);
+      
+      // Automatically mark payment as complete for the special "Baas" user.
+      if (loggedInUser.name === "Baas" && loggedInUser.level === "100") {
+        setIsPaid(true);
+      } else {
+        setIsPaid(false);
+      }
+      
+      return response.data;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
     }
   };
+  
 
   // Logout function clears the user, token, and resets payment status.
   const logoutUser = () => {
@@ -76,13 +85,12 @@ export const AuthProvider = ({ children }) => {
     setIsPaid(false);
   };
 
-  // Payment function that should be called when the user completes payment.
+  // Payment function to be called when the user completes payment.
   // Once successful, the payment status is set to true.
-  // Until isPaid is true, your dashboard components can be disabled.
   const processPayment = async () => {
     try {
       // Integrate with your payment gateway API here.
-      // For this demo, we simulate a successful payment.
+      // For demonstration, we simulate a successful payment.
       setIsPaid(true);
       return true;
     } catch (error) {

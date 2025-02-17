@@ -4,10 +4,10 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const { registerUser } = useContext(AuthContext);
-  const [formData, setFormData] = useState({ name: '', number: '' });
+  const [formData, setFormData] = useState({ name: '', level: '' });
   const navigate = useNavigate();
 
-  const { name, number } = formData;
+  const { name, level } = formData;
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -41,8 +41,8 @@ const Register = () => {
           type="number"
           className="emailInput mb-2 p-2 border rounded w-full"
           placeholder="Enter your level"
-          id="number"
-          value={number}
+          id="level"
+          value={level}
           onChange={onChange}
         />
         <button
