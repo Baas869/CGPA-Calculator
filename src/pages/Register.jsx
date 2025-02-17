@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 const Register = () => {
   const { registerUser } = useContext(AuthContext);
   const [formData, setFormData] = useState({ name: "", level: "" });
+  
   const navigate = useNavigate();
 
   const { name, level } = formData;

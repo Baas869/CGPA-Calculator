@@ -46,7 +46,7 @@ const Login = () => {
       // Redirect to payment page after successful login.
       navigate("/payment");
     } catch (error) {
-      // console.error("Login failed:", error);
+      console.error("Login failed:", error);
 
       // Show error toast
       toast.error("Login failed. Please check your credentials and try again.");
