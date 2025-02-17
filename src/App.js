@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard';
 import Home from "./pages/Home";
 import Header from "./components/Header";
 import Footer from './components/Footer';
+import { ToastContainer } from 'react-toastify';
+
 
 // PrivateRoute checks if user is logged in and has completed payment
 const PrivateRoute = ({ children }) => {
@@ -48,6 +50,18 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <ToastContainer 
+            position="top-center"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
         </div>
       </Router>
     </AuthProvider>

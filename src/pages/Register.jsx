@@ -1,6 +1,8 @@
 import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const { registerUser } = useContext(AuthContext);
@@ -17,17 +19,24 @@ const Register = () => {
     e.preventDefault();
     try {
       await registerUser(formData);
-      // After successful registration and automatic login, navigate to the dashboard.
+
+      // Show success toast
+      toast.success("Registration successful! Redirecting...");
+
+      // Redirect to dashboard after successful registration
       navigate('/dashboard');
     } catch (error) {
       console.error('Registration failed:', error);
-      // Optionally, display error feedback to the user.
+
+      // Show error toast
+      toast.error("Registration failed. Please try again.");
     }
   };
 
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Register</h2>
+      
       <form onSubmit={handleRegister}>
         <input
           type="text"
@@ -52,6 +61,7 @@ const Register = () => {
           Register
         </button>
       </form>
+
       <p className="mt-4">
         Already have an account?{' '}
         <Link to="/login" className="text-green-500">

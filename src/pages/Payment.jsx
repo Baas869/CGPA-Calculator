@@ -21,23 +21,25 @@ const Payment = () => {
         return;
       }
 
-      // Convert user ID to a string and format the request payload
+      // Convert user ID to a string
       const studentIdString = String(user.id);
-      const payload = { student_id: studentIdString };
 
-      console.log('Sending Payment Request:', payload);
+      console.log('Sending Payment Request:', { student_id: studentIdString });
 
-      // Send the request with the correct payload
+      // Send request with correct payload
       const response = await axios.post(
         'https://cgpacalculator-0ani.onrender.com/payment/payment/initiate',
-        payload, // Send student_id as a string
+        { student_id: studentIdString },
         { headers: { 'Content-Type': 'application/json' } }
       );
 
       console.log('Payment API Response:', response.data);
 
       if (response.data && response.data.payment_link) {
-        // Redirect user to the Monnify payment gateway
+        // Update payment status in context
+        setIsPaid(true);
+        
+        // Redirect user to the payment gateway
         window.location.href = response.data.payment_link;
       } else {
         console.error('Payment link not generated:', response.data);
@@ -53,9 +55,7 @@ const Payment = () => {
       <p>
         Hello, <strong>{user?.name}</strong>! Please complete your payment of <strong>500 Naira</strong> to access the features.
       </p>
-      <p>
-        Click "Proceed to Payment" to be redirected to the Monnify payment gateway.
-      </p>
+      <p>Click "Proceed to Payment" to be redirected to the Monnify payment gateway.</p>
       <button
         onClick={handlePayment}
         className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4"

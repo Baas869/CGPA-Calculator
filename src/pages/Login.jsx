@@ -2,6 +2,8 @@ import { useContext, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({ name: '', level: '' });
@@ -39,10 +41,18 @@ const Login = () => {
       // Build the credentials object as expected by your API.
       const credentials = { name, level };
       await loginUser(credentials);
-      // After successful login, navigate to the payment page.
+      
+      // Show success toast
+      toast.success("Login successful! Redirecting...");
+      
+      // Redirect to payment page after successful login.
       navigate("/payment");
     } catch (error) {
       console.error("Login failed:", error);
+
+      // Show error toast
+      toast.error("Login failed. Please check your credentials and try again.");
+      
       setErrors({ form: "Login failed. Please check your credentials and try again." });
     } finally {
       setLoading(false);
@@ -52,6 +62,8 @@ const Login = () => {
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Login</h2>
+      
+      {/* Toast Container to display notifications */}
       <form onSubmit={handleLogin}>
         <input
           type="text"
@@ -62,6 +74,7 @@ const Login = () => {
           onChange={onChange}
         />
         {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+        
         <input
           type="text"
           className="emailInput mb-2 p-2 border rounded w-full"
@@ -71,10 +84,12 @@ const Login = () => {
           onChange={onChange}
         />
         {errors.level && <p className="text-red-500 text-sm">{errors.level}</p>}
+        
         <Link to="/forgot-password" className="forgotPasswordLink">
           Forgot Password
         </Link>
         {errors.form && <p className="text-red-500 text-sm mt-2">{errors.form}</p>}
+        
         <div className="signInBar flex items-center mt-4">
           <p className="signInText mr-4">Login</p>
           <button
@@ -86,6 +101,7 @@ const Login = () => {
           </button>
         </div>
       </form>
+      
       <p className="mt-4">
         Don't have an account?{" "}
         <Link to="/register" className="text-blue-500">
