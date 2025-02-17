@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import Header from "./components/Header";
 import Footer from './components/Footer';
 import { ToastContainer } from 'react-toastify';
+import NotFound from '../src/pages/NotFound'
 
 
 // PrivateRoute checks if user is logged in and has completed payment
@@ -46,7 +47,7 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route path="*" element={<div>404 - Page Not Found</div>} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
           <Footer />

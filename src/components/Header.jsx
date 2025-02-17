@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import {ReactComponent as Logo} from '../logo.svg'
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,7 +12,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo */}
         <div className="text-2xl font-bold">
-          <Link to="/">Baas Tech</Link>
+          <Link to="/"><Logo className="w-16 h-16" /></Link>
         </div>
         {/* Desktop Navigation */}
         <nav className="hidden md:block">

@@ -46,7 +46,7 @@ const Login = () => {
       // Redirect to payment page after successful login.
       navigate("/payment");
     } catch (error) {
-      console.error("Login failed:", error);
+      // console.error("Login failed:", error);
 
       // Show error toast
       toast.error("Login failed. Please check your credentials and try again.");
@@ -85,7 +85,7 @@ const Login = () => {
           />
           {errors.level && <p className="text-red-500 text-sm">{errors.level}</p>}
 
-          <Link to="/forgot-password" className="text-blue-500 text-sm">
+          <Link to="/forgot-password" className="text-green-500 text-sm">
             Forgot Password?
           </Link>
           {errors.form && <p className="text-red-500 text-sm">{errors.form}</p>}
@@ -93,7 +93,7 @@ const Login = () => {
           {/* Login Button (Styled Like Register Button) */}
           <button
             type="submit"
-            className="w-full max-w-md bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+            className="w-full max-w-md bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
             disabled={loading}
           >
             {loading ? "Logging in..." : "Login"}
@@ -102,7 +102,7 @@ const Login = () => {
 
         <p className="mt-4 text-center">
           Don't have an account?{" "}
-          <Link to="/register" className="text-blue-500">
+          <Link to="/register" className="text-green-500">
             Register here
           </Link>
         </p>
