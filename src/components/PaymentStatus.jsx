@@ -10,48 +10,59 @@ const PaymentStatus = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
+  const [paymentStatus, setPaymentStatus] = useState(null);
 
-  // Extract paymentReference from URL query parameters
+  // Extract payment reference from URL query parameters
   const queryParams = new URLSearchParams(location.search);
   const transactionReference = queryParams.get("paymentReference");
 
   useEffect(() => {
     const verifyPaymentStatus = async () => {
       if (!transactionReference) {
-        toast.error("Missing payment reference! Redirecting to payment page.");
-        navigate("/payment");
+        toast.error("❌ Missing payment reference! Redirecting to payment page...");
+        setTimeout(() => navigate("/payment"), 2000);
         return;
       }
 
       try {
-        toast.info("Verifying your payment, please wait...");
-        
-        // Log extracted reference
+        toast.info("🔍 Verifying your payment, please wait...");
+
         console.log("🛠️ Extracted Payment Reference:", transactionReference);
         
         // Encode reference to handle special characters
         const encodedReference = encodeURIComponent(transactionReference);
         const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${encodedReference}`;
 
-        console.log("🔍 Payment Verification Request:", requestUrl);
+        console.log("🔍 Sending Payment Verification Request:", requestUrl);
 
-        // Send GET request with query params
+        // Send GET request to verify payment status
         const response = await axios.get(requestUrl);
 
         console.log("✅ Payment API Response:", response.data);
 
-        // Handle response
-        if (response.data && response.data.status === "paid") {
-          setIsPaid(true);
-          toast.success("Payment successful! Redirecting to dashboard...");
-          setTimeout(() => navigate("/dashboard"), 2000);
+        if (response.data && response.data.status) {
+          setPaymentStatus(response.data.status);
+
+          if (response.data.status === "paid") {
+            setIsPaid(true);
+            toast.success("✅ Payment successful! Redirecting to dashboard...");
+            setTimeout(() => navigate("/dashboard"), 2000);
+          } else if (response.data.status === "pending") {
+            toast.warning("⚠️ Payment is still pending. Please wait or try again.");
+            setTimeout(() => navigate("/payment"), 3000);
+          } else if (response.data.status === "refunded") {
+            toast.info("💰 Payment has been refunded. Contact support if needed.");
+            setTimeout(() => navigate("/payment"), 4000);
+          } else {
+            toast.error(`❌ Payment status: ${response.data.status}. Please try again.`);
+            setTimeout(() => navigate("/payment"), 3000);
+          }
         } else {
-          toast.error(`Payment status: ${response.data.status}. Please try again.`);
-          setTimeout(() => navigate("/payment"), 2000);
+          throw new Error("Invalid response from server.");
         }
       } catch (error) {
         console.error("❌ Payment Status Error:", error);
-        
+
         if (error.response) {
           console.error("🚨 Error Response Data:", error.response.data);
           console.error("📌 Error Status:", error.response.status);
@@ -60,8 +71,8 @@ const PaymentStatus = () => {
           console.error("⚠️ Error Message:", error.message);
         }
 
-        toast.error("An error occurred while verifying payment. Please try again.");
-        setTimeout(() => navigate("/payment"), 2000);
+        toast.error("❌ An error occurred while verifying payment. Please try again.");
+        setTimeout(() => navigate("/payment"), 3000);
       } finally {
         setLoading(false);
       }
@@ -76,7 +87,9 @@ const PaymentStatus = () => {
       {loading ? (
         <p>Please wait while we verify your payment.</p>
       ) : (
-        <p>Redirecting...</p>
+        <p className="text-lg font-semibold">
+          {paymentStatus ? `Payment Status: ${paymentStatus}` : "Redirecting..."}
+        </p>
       )}
     </div>
   );
