@@ -11,7 +11,7 @@ const PaymentStatus = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
 
-  // Extract paymentReference from URL query parameters.
+  // Extract paymentReference from URL query parameters
   const queryParams = new URLSearchParams(location.search);
   const transactionReference = queryParams.get("paymentReference");
 
@@ -27,15 +27,14 @@ const PaymentStatus = () => {
         toast.info("Verifying your payment, please wait...");
         console.log("Verifying Payment with reference:", transactionReference);
 
-        // Use GET request to fetch the payment status
+        // Correctly using GET params instead of JSON
         const response = await axios.get(
-          `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${transactionReference}`,
-          { headers: { "Content-Type": "application/json" } }
+          `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${transactionReference}`
         );
 
         console.log("Payment Status Response:", response.data);
 
-        // Check if the response indicates the payment is successful.
+        // Handle the response
         if (response.data && response.data.status === "paid") {
           setIsPaid(true);
           toast.success("Payment successful! Redirecting to dashboard...");
