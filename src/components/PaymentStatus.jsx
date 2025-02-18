@@ -11,7 +11,7 @@ const PaymentStatus = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
 
-  // ✅ Extract transactionReference from URL (Monnify sends `paymentReference`)
+  // Extract payment reference from URL query params (using the correct key)
   const queryParams = new URLSearchParams(location.search);
   const transactionReference = queryParams.get("paymentReference");
 
@@ -24,13 +24,14 @@ const PaymentStatus = () => {
       }
 
       try {
-        toast.info("Verifying payment...");
+        toast.info("Verifying payment, please wait...");
 
         console.log("Verifying Payment with reference:", transactionReference);
 
+        // Update the payload: using "transactionReference" instead of "reference"
         const response = await axios.post(
           "https://cgpacalculator-0ani.onrender.com/payment/payment/verify/",
-          { reference: transactionReference }, // ✅ Send the correct reference
+          { transactionReference },
           { headers: { "Content-Type": "application/json" } }
         );
 
@@ -38,15 +39,18 @@ const PaymentStatus = () => {
 
         if (response.data && response.data.status === "success") {
           setIsPaid(true);
-          toast.success("Payment successful! Redirecting...");
+          toast.success("Payment successful! Redirecting to dashboard...");
           navigate("/dashboard");
         } else {
-          toast.error("Payment failed! Please try again.");
+          toast.error("Payment verification failed! Please try again.");
           navigate("/payment");
         }
       } catch (error) {
-        console.error("Payment verification error:", error.response ? error.response.data : error.message);
-        toast.error("Error verifying payment.");
+        console.error(
+          "Payment verification error:",
+          error.response ? error.response.data : error.message
+        );
+        toast.error("An error occurred while verifying payment. Please try again.");
         navigate("/payment");
       } finally {
         setLoading(false);
@@ -59,7 +63,11 @@ const PaymentStatus = () => {
   return (
     <div className="container mx-auto p-4 text-center">
       <h2 className="text-2xl font-bold mb-4">Verifying Payment...</h2>
-      {loading ? <p>Please wait while we verify your payment.</p> : <p>Redirecting...</p>}
+      {loading ? (
+        <p>Please wait while we verify your payment.</p>
+      ) : (
+        <p>Redirecting...</p>
+      )}
     </div>
   );
 };
