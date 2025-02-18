@@ -27,19 +27,15 @@ const PaymentStatus = () => {
         toast.info("Verifying your payment, please wait...");
         console.log("Verifying Payment with reference:", transactionReference);
 
-        // Build the payload as expected by the API:
-        // { "payment_ref": "a3b8b528-a" }
-        const payload = { payment_ref: transactionReference };
-
+        // Use GET request to fetch the payment status
         const response = await axios.get(
-          "https://cgpacalculator-0ani.onrender.com/payment/payment/status/",
-          payload,
+          `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${transactionReference}`,
           { headers: { "Content-Type": "application/json" } }
         );
 
         console.log("Payment Status Response:", response.data);
 
-        // Check if the response indicates a paid status.
+        // Check if the response indicates the payment is successful.
         if (response.data && response.data.status === "paid") {
           setIsPaid(true);
           toast.success("Payment successful! Redirecting to dashboard...");
