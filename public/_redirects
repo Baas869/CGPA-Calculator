@@ -1,3 +1,5 @@
 /payment-status    /index.html   200
 /payment-status/*  /index.html   200
+/dashboard  /index.html   200
+/dashboard/*  /index.html   200
 /*                 /index.html   200
