@@ -9,7 +9,8 @@ import Home from "./pages/Home";
 import Header from "./components/Header";
 import Footer from './components/Footer';
 import { ToastContainer } from 'react-toastify';
-import NotFound from '../src/pages/NotFound'
+import NotFound from '../src/pages/NotFound';
+import PaymentStatus from './components/PaymentStatus';
 
 
 // PrivateRoute checks if user is logged in and has completed payment
@@ -39,6 +40,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/payment" element={<Payment />} />
+              <Route path="/payment-status" element={<PaymentStatus />} />
               <Route 
                 path="/dashboard" 
                 element={
