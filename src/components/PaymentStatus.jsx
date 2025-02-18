@@ -25,16 +25,18 @@ const PaymentStatus = () => {
 
       try {
         toast.info("Verifying your payment, please wait...");
-        console.log("Verifying Payment with reference:", transactionReference);
+        
+        console.log("🔍 Payment Verification Request:");
+        console.log(`GET URL: https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${transactionReference}`);
 
-        // Correctly using GET params instead of JSON
+        // Send GET request with query params
         const response = await axios.get(
           `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${transactionReference}`
         );
 
-        console.log("Payment Status Response:", response.data);
+        console.log("✅ Payment API Response:", response.data);
 
-        // Handle the response
+        // Handle response
         if (response.data && response.data.status === "paid") {
           setIsPaid(true);
           toast.success("Payment successful! Redirecting to dashboard...");
@@ -44,10 +46,16 @@ const PaymentStatus = () => {
           setTimeout(() => navigate("/payment"), 2000);
         }
       } catch (error) {
-        console.error(
-          "Payment status error:",
-          error.response ? error.response.data : error.message
-        );
+        console.error("❌ Payment Status Error:", error);
+        
+        if (error.response) {
+          console.error("🚨 Error Response Data:", error.response.data);
+          console.error("📌 Error Status:", error.response.status);
+          console.error("📩 Error Headers:", error.response.headers);
+        } else {
+          console.error("⚠️ Error Message:", error.message);
+        }
+
         toast.error("An error occurred while verifying payment. Please try again.");
         setTimeout(() => navigate("/payment"), 2000);
       } finally {
