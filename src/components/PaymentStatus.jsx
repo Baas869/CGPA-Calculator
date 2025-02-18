@@ -11,7 +11,7 @@ const PaymentStatus = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
 
-  // Extract payment reference from URL query params (using the correct key)
+  // Extract paymentReference from URL query parameters
   const queryParams = new URLSearchParams(location.search);
   const transactionReference = queryParams.get("paymentReference");
 
@@ -24,34 +24,42 @@ const PaymentStatus = () => {
       }
 
       try {
-        toast.info("Verifying payment, please wait...");
-
+        toast.info("Verifying your payment, please wait...");
         console.log("Verifying Payment with reference:", transactionReference);
 
-        // Update the payload: using "transactionReference" instead of "reference"
+        // Build the payload as expected by your backend:
+        const payload = {
+          eventType: "SUCCESSFUL_TRANSACTION",
+          eventData: {
+            transactionReference: transactionReference,
+            amountPaid: "500"
+          }
+        };
+
         const response = await axios.post(
-          "https://cgpacalculator-0ani.onrender.com/payment/payment/verify/",
-          { transactionReference },
+          "https://cgpacalculator-0ani.onrender.com/payment/webhook/",
+          payload,
           { headers: { "Content-Type": "application/json" } }
         );
 
         console.log("Payment Verification Response:", response.data);
 
-        if (response.data && response.data.status === "success") {
+        // Check if the response indicates a successful update
+        if (response.data && response.data.message === "Payment status updated") {
           setIsPaid(true);
           toast.success("Payment successful! Redirecting to dashboard...");
-          navigate("/dashboard");
+          setTimeout(() => navigate("/dashboard"), 2000);
         } else {
           toast.error("Payment verification failed! Please try again.");
-          navigate("/payment");
+          setTimeout(() => navigate("/payment"), 2000);
         }
       } catch (error) {
         console.error(
           "Payment verification error:",
           error.response ? error.response.data : error.message
         );
-        toast.error("An error occurred while verifying payment. Please try again.");
-        navigate("/payment");
+        toast.error("An error occurred while verifying payment.");
+        setTimeout(() => navigate("/payment"), 2000);
       } finally {
         setLoading(false);
       }
