@@ -12,13 +12,13 @@ const PaymentStatus = () => {
   const [loading, setLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState(null);
 
-  // Extract payment reference from URL query parameters
+  // Extract paymentReference from URL query parameters
   const queryParams = new URLSearchParams(location.search);
   const transactionReference = queryParams.get("paymentReference");
 
   useEffect(() => {
     const verifyPaymentStatus = async () => {
-      if (!transactionReference) {
+      if (!transactionReference || transactionReference.trim() === "") {
         toast.error("❌ Missing payment reference! Redirecting to payment page...");
         setTimeout(() => navigate("/payment"), 2000);
         return;
@@ -28,12 +28,12 @@ const PaymentStatus = () => {
         toast.info("🔍 Verifying your payment, please wait...");
 
         console.log("🛠️ Extracted Payment Reference:", transactionReference);
-        
-        // Encode reference to handle special characters
-        const encodedReference = encodeURIComponent(transactionReference);
-        const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${encodedReference}`;
 
-        console.log("🔍 Sending Payment Verification Request:", requestUrl);
+        // Encode reference for safety
+        const encodedReference = encodeURIComponent(transactionReference);
+        const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?reference=${encodedReference}`;
+
+        console.log("🔍 Sending GET Request:", requestUrl);
 
         // Send GET request to verify payment status
         const response = await axios.get(requestUrl);
@@ -47,14 +47,8 @@ const PaymentStatus = () => {
             setIsPaid(true);
             toast.success("✅ Payment successful! Redirecting to dashboard...");
             setTimeout(() => navigate("/dashboard"), 2000);
-          } else if (response.data.status === "pending") {
-            toast.warning("⚠️ Payment is still pending. Please wait or try again.");
-            setTimeout(() => navigate("/payment"), 3000);
-          } else if (response.data.status === "refunded") {
-            toast.info("💰 Payment has been refunded. Contact support if needed.");
-            setTimeout(() => navigate("/payment"), 4000);
           } else {
-            toast.error(`❌ Payment status: ${response.data.status}. Please try again.`);
+            toast.warning(`⚠️ Payment status: ${response.data.status}. Redirecting...`);
             setTimeout(() => navigate("/payment"), 3000);
           }
         } else {
