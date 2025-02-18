@@ -29,7 +29,7 @@ const PaymentStatus = () => {
         console.log("Verifying Payment with reference:", transactionReference);
 
         const response = await axios.post(
-          "https://cgpacalculator-0ani.onrender.com/payment/payment/webhook/",
+          "https://cgpacalculator-0ani.onrender.com/payment/payment/verify/",
           { reference: transactionReference }, // ✅ Send the correct reference
           { headers: { "Content-Type": "application/json" } }
         );
