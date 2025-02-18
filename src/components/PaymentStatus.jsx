@@ -26,13 +26,17 @@ const PaymentStatus = () => {
       try {
         toast.info("Verifying your payment, please wait...");
         
-        console.log("🔍 Payment Verification Request:");
-        console.log(`GET URL: https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${transactionReference}`);
+        // Log extracted reference
+        console.log("🛠️ Extracted Payment Reference:", transactionReference);
+        
+        // Encode reference to handle special characters
+        const encodedReference = encodeURIComponent(transactionReference);
+        const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${encodedReference}`;
+
+        console.log("🔍 Payment Verification Request:", requestUrl);
 
         // Send GET request with query params
-        const response = await axios.get(
-          `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${transactionReference}`
-        );
+        const response = await axios.get(requestUrl);
 
         console.log("✅ Payment API Response:", response.data);
 
