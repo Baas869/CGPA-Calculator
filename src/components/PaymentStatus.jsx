@@ -37,7 +37,7 @@ const PaymentStatus = () => {
         };
 
         const response = await axios.post(
-          "https://cgpacalculator-0ani.onrender.com/payment/webhook/",
+          "https://cgpacalculator-0ani.onrender.com/payment/payment/verify/",
           payload,
           { headers: { "Content-Type": "application/json" } }
         );
