@@ -11,9 +11,9 @@ const PaymentStatus = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
 
-  // Extract transactionReference from URL
+  // ✅ Extract transactionReference from URL (Monnify sends `paymentReference`)
   const queryParams = new URLSearchParams(location.search);
-  const transactionReference = queryParams.get("reference");
+  const transactionReference = queryParams.get("paymentReference");
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -30,7 +30,7 @@ const PaymentStatus = () => {
 
         const response = await axios.post(
           "https://cgpacalculator-0ani.onrender.com/payment/payment/verify/",
-          { reference: transactionReference },
+          { reference: transactionReference }, // ✅ Send the correct reference
           { headers: { "Content-Type": "application/json" } }
         );
 

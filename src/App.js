@@ -40,7 +40,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/payment" element={<Payment />} />
-              <Route path="/payment-status/*" element={<PaymentStatus />} />
+              <Route path="/payment-status" element={<PaymentStatus />} />
               <Route 
                 path="/dashboard/*" 
                 element={
