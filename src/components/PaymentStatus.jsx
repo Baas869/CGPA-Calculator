@@ -31,7 +31,7 @@ const PaymentStatus = () => {
         // { "payment_ref": "a3b8b528-a" }
         const payload = { payment_ref: transactionReference };
 
-        const response = await axios.post(
+        const response = await axios.get(
           "https://cgpacalculator-0ani.onrender.com/payment/payment/status/",
           payload,
           { headers: { "Content-Type": "application/json" } }
