@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const PaymentStatus = () => {
-  const { user, setUser, setIsPaid } = useContext(AuthContext);
+  const { user, setIsPaid } = useContext(AuthContext); // ❌ Removed setUser (since we don't fetch from localStorage)
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
@@ -42,13 +42,6 @@ const PaymentStatus = () => {
 
           if (response.data.status === "paid") {
             setIsPaid(true);
-            
-            // ✅ Retrieve user from localStorage & set in AuthContext
-            const storedUser = localStorage.getItem("user");
-            if (storedUser) {
-              setUser(JSON.parse(storedUser));
-            }
-
             toast.success("✅ Payment successful! Redirecting to dashboard...");
             setTimeout(() => navigate("/dashboard"), 2000);
           } else {
@@ -68,7 +61,7 @@ const PaymentStatus = () => {
     };
 
     verifyPaymentStatus();
-  }, [transactionReference, navigate, setIsPaid, setUser]);
+  }, [transactionReference, navigate, setIsPaid]);
 
   return (
     <div className="container mx-auto p-4 text-center">
@@ -80,10 +73,12 @@ const PaymentStatus = () => {
           {paymentStatus ? `Payment Status: ${paymentStatus}` : "Redirecting..."}
         </p>
       )}
+
+      {user && (
         <p className="text-lg font-semibold">
-            {user && `Checking payment for ${user.name}...`} {/* ✅ Use user */}
-            {paymentStatus ? `Payment Status: ${paymentStatus}` : "Redirecting..."}
+          Checking payment for {user.name}...
         </p>
+      )}
     </div>
   );
 };

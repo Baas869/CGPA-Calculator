@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Offers from '../components/share/Offers';
 
 const Dashboard = () => {
-  const { user, isPaid, setUser } = useContext(AuthContext); // ✅ Ensure setUser is extracted
+  const { user, isPaid } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -15,17 +15,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate(`/login${location.search}`); // ✅ Preserve query params when redirecting
-
-      // ✅ Check if user exists in localStorage and restore session
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
+      navigate(`/login${location.search}`); // ✅ Redirect to login if user is not found
     } else {
       setLoading(false);
     }
-  }, [user, navigate, location.search, setUser]);
+  }, [user, navigate, location.search]);
 
   return (
     <div className="pageContainer p-6">
@@ -51,7 +45,7 @@ const Dashboard = () => {
 
           <Offers />
 
-          {/* ✅ Button to manually refresh or retry payment verification */}
+          {/* ✅ Button to manually retry payment verification */}
           {!isPaid && (
             <button
               onClick={() => navigate(`/payment${location.search}`)}
