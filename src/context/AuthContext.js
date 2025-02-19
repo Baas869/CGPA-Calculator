@@ -4,7 +4,7 @@ import axios from "axios";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Only stored in state
+  const [user, setUser] = useState(null); // User details in state
   const [isPaid, setIsPaid] = useState(false);
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
@@ -14,12 +14,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Function to verify payment status for the logged-in user
-  const checkPaymentStatus = async (studentId) => {
+  // Note: This endpoint expects a payment reference, so it shouldn't be called using a student id.
+  const checkPaymentStatus = async (paymentRef) => {
     try {
-      if (!studentId) return;
-      console.log(`🔍 Checking payment status for student ID: ${studentId}`);
+      if (!paymentRef) return;
+      console.log(`🔍 Checking payment status for payment ref: ${paymentRef}`);
       const response = await axios.get(
-        `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?student_id=${studentId}`
+        `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${paymentRef}`
       );
       if (response.data && response.data.status === "paid") {
         console.log("✅ Payment verified as PAID");
@@ -33,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Function to fetch user details using the token; no user details are persisted locally.
+  // useCallback to wrap fetchUserProfile so it has a stable reference
   const fetchUserProfile = useCallback(async () => {
     try {
       if (!token) return;
@@ -43,7 +44,7 @@ export const AuthProvider = ({ children }) => {
       );
       if (response.data) {
         setUser(response.data.student);
-        await checkPaymentStatus(response.data.student.id);
+        // We no longer call checkPaymentStatus here because the Payment Status API requires a payment reference.
       }
     } catch (error) {
       console.error("❌ Failed to fetch user profile:", error);
@@ -51,14 +52,14 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Load user session from token on mount
+  // Load user session by verifying token on mount and when token changes
   useEffect(() => {
     if (token) {
       fetchUserProfile();
     }
   }, [token, fetchUserProfile]);
 
-  // Register user and automatically log them in (store token only)
+  // Register user and automatically log them in
   const registerUser = async (userData) => {
     try {
       const response = await axios.post(
@@ -77,7 +78,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login user and store session token; do not persist user details in localStorage
+  // Login user and store session token
   const loginUser = async (credentials) => {
     try {
       const response = await axios.post(
@@ -93,7 +94,7 @@ export const AuthProvider = ({ children }) => {
       setUser(loggedInUser);
       setToken(session_token);
       localStorage.setItem("token", session_token);
-      await checkPaymentStatus(loggedInUser.id);
+      // We no longer call checkPaymentStatus here because the API expects a payment reference.
       return response.data;
     } catch (error) {
       console.error("❌ Login error:", error);
@@ -109,7 +110,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
   };
 
-  // Process payment and update payment status
+  // Process payment and update payment status (for demonstration)
   const processPayment = async () => {
     try {
       updatePaymentStatus(true);
