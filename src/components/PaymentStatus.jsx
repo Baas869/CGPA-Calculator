@@ -28,8 +28,8 @@ const PaymentStatus = () => {
       try {
         // toast.info("⏳ Waiting for webhook update...");
 
-        // ✅ Wait 30 seconds before the first check
-        await new Promise((resolve) => setTimeout(resolve, 30000));
+        // ✅ Wait 40 seconds before the first check
+        await new Promise((resolve) => setTimeout(resolve, 40000));
 
         // toast.info("🔍 Checking payment status...");
 
@@ -50,7 +50,7 @@ const PaymentStatus = () => {
             setIsPaid(true);
             toast.success("✅ Payment successful! Redirecting to dashboard...");
             setTimeout(() => navigate("/dashboard"), 2000);
-          } else if (response.data.status === "pending" && retryCount < 3) {
+          } else if (response.data.status === "pending" && retryCount < 20) {
             // 🔄 Retry every 5 seconds (max 3 times)
             setRetryCount((prev) => prev + 1);
             setTimeout(verifyPaymentStatus, 5000);
