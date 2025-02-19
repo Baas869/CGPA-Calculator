@@ -6,19 +6,19 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const PaymentStatus = () => {
-  const { setIsPaid } = useContext(AuthContext);
+  const { user, setUser, setIsPaid } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState(null);
 
-  // Extract paymentReference from URL query parameters
+  // ✅ Extract payment reference from URL
   const queryParams = new URLSearchParams(location.search);
   const transactionReference = queryParams.get("paymentReference");
 
   useEffect(() => {
     const verifyPaymentStatus = async () => {
-      if (!transactionReference || transactionReference.trim() === "") {
+      if (!transactionReference) {
         toast.error("❌ Missing payment reference! Redirecting to payment page...");
         setTimeout(() => navigate("/payment"), 2000);
         return;
@@ -28,16 +28,13 @@ const PaymentStatus = () => {
         toast.info("🔍 Verifying your payment, please wait...");
 
         console.log("🛠️ Extracted Payment Reference:", transactionReference);
-
-        // Encode reference for safety
-        const encodedReference = encodeURIComponent(transactionReference);
-        const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?reference=${encodedReference}`;
-
+        
+        // ✅ Construct API request
+        const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?reference=${encodeURIComponent(transactionReference)}`;
         console.log("🔍 Sending GET Request:", requestUrl);
 
-        // Send GET request to verify payment status
+        // ✅ Send GET request to verify payment status
         const response = await axios.get(requestUrl);
-
         console.log("✅ Payment API Response:", response.data);
 
         if (response.data && response.data.status) {
@@ -45,6 +42,13 @@ const PaymentStatus = () => {
 
           if (response.data.status === "paid") {
             setIsPaid(true);
+            
+            // ✅ Retrieve user from localStorage & set in AuthContext
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+              setUser(JSON.parse(storedUser));
+            }
+
             toast.success("✅ Payment successful! Redirecting to dashboard...");
             setTimeout(() => navigate("/dashboard"), 2000);
           } else {
@@ -56,15 +60,6 @@ const PaymentStatus = () => {
         }
       } catch (error) {
         console.error("❌ Payment Status Error:", error);
-
-        if (error.response) {
-          console.error("🚨 Error Response Data:", error.response.data);
-          console.error("📌 Error Status:", error.response.status);
-          console.error("📩 Error Headers:", error.response.headers);
-        } else {
-          console.error("⚠️ Error Message:", error.message);
-        }
-
         toast.error("❌ An error occurred while verifying payment. Please try again.");
         setTimeout(() => navigate("/payment"), 3000);
       } finally {
@@ -73,7 +68,7 @@ const PaymentStatus = () => {
     };
 
     verifyPaymentStatus();
-  }, [transactionReference, navigate, setIsPaid]);
+  }, [transactionReference, navigate, setIsPaid, setUser]);
 
   return (
     <div className="container mx-auto p-4 text-center">
@@ -85,6 +80,10 @@ const PaymentStatus = () => {
           {paymentStatus ? `Payment Status: ${paymentStatus}` : "Redirecting..."}
         </p>
       )}
+        <p className="text-lg font-semibold">
+            {user && `Checking payment for ${user.name}...`} {/* ✅ Use user */}
+            {paymentStatus ? `Payment Status: ${paymentStatus}` : "Redirecting..."}
+        </p>
     </div>
   );
 };

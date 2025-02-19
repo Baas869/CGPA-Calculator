@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 export const AuthContext = createContext();
@@ -7,12 +7,27 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isPaid, setIsPaid] = useState(false);
 
-  // Function to update payment status manually
+  // ✅ Load user and payment status from localStorage on mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const storedPaymentStatus = localStorage.getItem("isPaid");
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    if (storedPaymentStatus === "true") {
+      setIsPaid(true);
+    }
+  }, []);
+
+  // ✅ Function to update payment status and persist it
   const updatePaymentStatus = (status) => {
     setIsPaid(status);
+    localStorage.setItem("isPaid", status);
   };
 
-  // Register user and automatically log them in.
+  // ✅ Register user and automatically log them in
   const registerUser = async (userData) => {
     try {
       const response = await axios.post(
@@ -22,9 +37,11 @@ export const AuthProvider = ({ children }) => {
       );
 
       const { student: registeredUser, token } = response.data;
+
       setUser(registeredUser);
+      localStorage.setItem('user', JSON.stringify(registeredUser));
       localStorage.setItem('token', token);
-      
+
       return response.data;
     } catch (error) {
       console.error('Registration error:', error);
@@ -32,7 +49,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login user and store session token
+  // ✅ Login user and store session token
   const loginUser = async (credentials) => {
     try {
       const response = await axios.post(
@@ -48,14 +65,16 @@ export const AuthProvider = ({ children }) => {
       }
 
       const { student: loggedInUser, session_token: token } = response.data;
+
       setUser(loggedInUser);
+      localStorage.setItem('user', JSON.stringify(loggedInUser));
       localStorage.setItem('token', token);
 
-      // Automatically mark payment as complete for "Baas" with level "100"
+      // ✅ Automatically mark payment as complete for "Baas" with level "100"
       if (loggedInUser.name === "Baas" && loggedInUser.level === "100") {
-        setIsPaid(true);
+        updatePaymentStatus(true);
       } else {
-        setIsPaid(false);
+        updatePaymentStatus(false);
       }
 
       return response.data;
@@ -65,17 +84,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout function clears the user, token, and resets payment status
+  // ✅ Logout function clears the user, token, and resets payment status
   const logoutUser = () => {
     setUser(null);
-    localStorage.removeItem('token');
     setIsPaid(false);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('isPaid');
   };
 
-  // Process payment and update payment status
+  // ✅ Process payment and update payment status
   const processPayment = async () => {
     try {
-      setIsPaid(true);
+      updatePaymentStatus(true);
       return true;
     } catch (error) {
       console.error('Payment error:', error);

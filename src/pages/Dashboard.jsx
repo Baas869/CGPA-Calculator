@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Offers from '../components/share/Offers';
 
 const Dashboard = () => {
-  const { user, isPaid } = useContext(AuthContext);
+  const { user, isPaid, setUser } = useContext(AuthContext); // ✅ Ensure setUser is extracted
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -16,10 +16,16 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user) {
       navigate(`/login${location.search}`); // ✅ Preserve query params when redirecting
+
+      // ✅ Check if user exists in localStorage and restore session
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
     } else {
       setLoading(false);
     }
-  }, [user, navigate, location.search]);
+  }, [user, navigate, location.search, setUser]);
 
   return (
     <div className="pageContainer p-6">
