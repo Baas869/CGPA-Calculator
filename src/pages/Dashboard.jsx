@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Offers from '../components/share/Offers';
+import Cgpa from '../components/Cgpa';
+
 
 const Dashboard = () => {
   const { user, isPaid } = useContext(AuthContext);
@@ -44,6 +46,7 @@ const Dashboard = () => {
           )}
 
           <Offers />
+          <Cgpa />
 
           {/* ✅ Button to manually retry payment verification */}
           {!isPaid && (
