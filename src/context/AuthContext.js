@@ -1,65 +1,19 @@
-import React, { createContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useState } from "react";
 import axios from "axios";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // User details in state
+  const [user, setUser] = useState(null); // User details in state only
   const [isPaid, setIsPaid] = useState(false);
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState(""); // Token is stored in state only
 
   // Function to update payment status manually
   const updatePaymentStatus = (status) => {
     setIsPaid(status);
   };
 
-  // Function to verify payment status for the logged-in user
-  // Note: This endpoint expects a payment reference, so it shouldn't be called using a student id.
-  const checkPaymentStatus = async (paymentRef) => {
-    try {
-      if (!paymentRef) return;
-      console.log(`🔍 Checking payment status for payment ref: ${paymentRef}`);
-      const response = await axios.get(
-        `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${paymentRef}`
-      );
-      if (response.data && response.data.status === "paid") {
-        console.log("✅ Payment verified as PAID");
-        setIsPaid(true);
-      } else {
-        console.log("⚠️ Payment status:", response.data.status);
-        setIsPaid(false);
-      }
-    } catch (error) {
-      console.error("❌ Error checking payment status:", error);
-    }
-  };
-
-  // useCallback to wrap fetchUserProfile so it has a stable reference
-  const fetchUserProfile = useCallback(async () => {
-    try {
-      if (!token) return;
-      const response = await axios.get(
-        "https://cgpacalculator-0ani.onrender.com/students/auth/profile/",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (response.data) {
-        setUser(response.data.student);
-        // We no longer call checkPaymentStatus here because the Payment Status API requires a payment reference.
-      }
-    } catch (error) {
-      console.error("❌ Failed to fetch user profile:", error);
-      logoutUser();
-    }
-  }, [token]);
-
-  // Load user session by verifying token on mount and when token changes
-  useEffect(() => {
-    if (token) {
-      fetchUserProfile();
-    }
-  }, [token, fetchUserProfile]);
-
-  // Register user and automatically log them in
+  // Register user and automatically log them in (do not persist user details locally)
   const registerUser = async (userData) => {
     try {
       const response = await axios.post(
@@ -70,7 +24,6 @@ export const AuthProvider = ({ children }) => {
       const { student: registeredUser, token } = response.data;
       setUser(registeredUser);
       setToken(token);
-      localStorage.setItem("token", token);
       return response.data;
     } catch (error) {
       console.error("❌ Registration error:", error);
@@ -78,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login user and store session token
+  // Login user and store session token in state only
   const loginUser = async (credentials) => {
     try {
       const response = await axios.post(
@@ -93,8 +46,7 @@ export const AuthProvider = ({ children }) => {
       const { student: loggedInUser, session_token } = response.data;
       setUser(loggedInUser);
       setToken(session_token);
-      localStorage.setItem("token", session_token);
-      // We no longer call checkPaymentStatus here because the API expects a payment reference.
+      await checkPaymentStatus(loggedInUser.id);
       return response.data;
     } catch (error) {
       console.error("❌ Login error:", error);
@@ -102,15 +54,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout function clears the user, token, and resets payment status
+  // Logout function clears the user, token, and resets payment status (state only)
   const logoutUser = () => {
     setUser(null);
     setIsPaid(false);
     setToken("");
-    localStorage.removeItem("token");
   };
 
-  // Process payment and update payment status (for demonstration)
+  // Function to verify payment status for the logged-in user (using student ID)
+  const checkPaymentStatus = async (studentId) => {
+    try {
+      if (!studentId) return;
+      console.log(`🔍 Checking payment status for student ID: ${studentId}`);
+      const response = await axios.get(
+        `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?student_id=${studentId}`
+      );
+      if (response.data && response.data.status === "paid") {
+        console.log("✅ Payment verified as PAID");
+        setIsPaid(true);
+      } else {
+        console.log("⚠️ Payment status:", response.data.status);
+        setIsPaid(false);
+      }
+    } catch (error) {
+      console.error("❌ Error checking payment status:", error);
+    }
+  };
+
+  // Process payment and update payment status
   const processPayment = async () => {
     try {
       updatePaymentStatus(true);
