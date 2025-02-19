@@ -33,12 +33,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // useCallback to wrap fetchUserProfile so it has a stable reference
+  // Wrap fetchUserProfile in useCallback for a stable reference
   const fetchUserProfile = useCallback(async () => {
     try {
       if (!token) return;
+      // Updated the profile endpoint to include a trailing slash.
       const response = await axios.get(
-        "https://cgpacalculator-0ani.onrender.com/students/auth/profile",
+        "https://cgpacalculator-0ani.onrender.com/students/auth/profile/",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data) {
