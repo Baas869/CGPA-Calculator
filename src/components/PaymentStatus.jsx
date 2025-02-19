@@ -19,7 +19,7 @@ const PaymentStatus = () => {
 
   useEffect(() => {
     if (!transactionReference) {
-      toast.dismiss(); // Remove old notifications
+      toast.dismiss();
       toast.error("❌ Missing payment reference! Redirecting to payment page...");
       setTimeout(() => navigate("/payment"), 2000);
       return;
@@ -28,7 +28,7 @@ const PaymentStatus = () => {
     const verifyPaymentStatus = async () => {
       try {
         if (retryCount === 0) {
-          toast.dismiss(); // Remove old notifications
+          toast.dismiss();
           toast.info("⏳ Waiting for Monnify to update your payment...");
         }
 
@@ -51,17 +51,14 @@ const PaymentStatus = () => {
           setPaymentStatus(response.data.status);
 
           if (response.data.status === "paid") {
-            toast.dismiss(); // Remove previous notifications
+            toast.dismiss();
             setIsPaid(true);
             toast.success("✅ Payment successful! Redirecting to dashboard...");
             setTimeout(() => navigate("/dashboard"), 2000);
-          } else if (response.data.status === "failed") {
-            toast.dismiss();
-            toast.error("❌ Payment failed! Please try again");
-            setTimeout(() => navigate("/payment"), 3000);
-          } else if (response.data.status === "pending" && retryCount < 20) {
+          } else if (response.data.status === "pending" && retryCount < 10) {
+            // 🔄 Retry every 5 seconds, up to 10 times (50 seconds max)
             setRetryCount((prev) => prev + 1);
-            setTimeout(verifyPaymentStatus, 5000); // Retry every 5 seconds
+            setTimeout(verifyPaymentStatus, 5000);
           } else {
             toast.dismiss();
             toast.warning("⚠️ Payment status unclear. Redirecting to payment...");
