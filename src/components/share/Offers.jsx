@@ -1,15 +1,16 @@
-import { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
-import Semester from '../semester/Semester.js';
-import SemesterButton from './SemesterButton.js';
-import SemiCircleProgressBar from './CircleProgressBar.jsx';
-import { CourseObject, calculateCGPA } from '../../utils.js';
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import Semester from "../semester/Semester.js";
+import SemesterButton from "./SemesterButton.js";
+import SemiCircleProgressBar from "./CircleProgressBar.jsx";
+import { CourseObject, calculateCGPA } from "../../utils.js";
+import CGPA from "../../components/Cgpa.jsx"; // ✅ Import CGPA component
 
 function Offers() {
   const [semesters, setSemesters] = useState([]);
   const [activeSemesterID, setActiveSemester] = useState(0);
-  const localStorageKey = 'results';
+  const localStorageKey = "results";
   const { isPaid } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -33,19 +34,15 @@ function Offers() {
     const newSemesters = [...semesters];
     newSemesters[semesterIndex].courses.push(course);
     setSemesters(newSemesters);
-    return newSemesters;
   };
 
   const addSemester = () => {
-    const newSemesters = [...semesters];
-    newSemesters.push({ courses: [new CourseObject("", 0, 5)] });
+    const newSemesters = [...semesters, { courses: [new CourseObject("", 0, 5)] }];
     setSemesters(newSemesters);
     setActiveSemester(newSemesters.length - 1);
   };
 
-  const checkIfSemesterActive = (semesterIndex) => {
-    return semesterIndex === activeSemesterID;
-  };
+  const checkIfSemesterActive = (semesterIndex) => semesterIndex === activeSemesterID;
 
   const handleUnitChange = (semesterIndex, courseIndex, unit) => {
     const newSemesters = [...semesters];
@@ -91,17 +88,16 @@ function Offers() {
   };
 
   const handleViewAnalysis = () => {
-    const element = document.getElementById('details-section');
+    const element = document.getElementById("details-section");
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
-  const results = calculateCGPA(semesters);
+  const results = calculateCGPA(semesters); // ✅ Used correctly
 
   return (
     <>
-      {/* Notification Banner for Payment */}
       {!isPaid && (
         <div className="bg-yellow-200 p-3 rounded flex justify-between items-center mb-4">
           <span className="text-yellow-800">
@@ -109,7 +105,7 @@ function Offers() {
           </span>
           <button
             className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded"
-            onClick={() => navigate('/payment')}
+            onClick={() => navigate("/payment")}
           >
             Make Payment
           </button>
@@ -117,12 +113,10 @@ function Offers() {
       )}
 
       <div className="content flex flex-col grow p-3 px-7 gap-1">
-        {/* Header */}
         <span className="content__header mb-2 border-b-4 border-[#00cc66] self-start pb-3">
           GPA CALCULATOR
         </span>
 
-        {/* Dialup section */}
         <div className="flex border-b-2 pb-3">
           <div className="w-52 ml-auto mr-auto">
             <SemiCircleProgressBar value={results.CGPA} />
@@ -131,16 +125,12 @@ function Offers() {
             <span className="mb-4">
               <span>Units Total: {results.totalUnits}</span>
             </span>
-            <button
-              className="bg-[#00cc66] p-3 rounded text-white"
-              onClick={handleViewAnalysis}
-            >
+            <button className="bg-[#00cc66] p-3 rounded text-white" onClick={handleViewAnalysis}>
               View Analysis
             </button>
           </div>
         </div>
 
-        {/* Semesters picker */}
         <div className="flex whitespace-nowrap flex-wrap">
           <div className="flex gap-2 flex-wrap">
             {semesters.map((semester, index) => (
@@ -161,7 +151,6 @@ function Offers() {
           </button>
         </div>
 
-        {/* Calculator */}
         <div className="flex flex-col bg-white grow p-3">
           {semesters.length > 0 && (
             <Semester
@@ -176,10 +165,10 @@ function Offers() {
             />
           )}
 
-          {/* Analysis section - Graphs */}
-          <div id="details-section" className="">
-            {/* Graph component can go here */}
-          </div>
+          <div id="details-section" className=""></div>
+
+          {/* ✅ Added CGPA Component & Passed Required Props */}
+          <CGPA semesters={semesters} />
         </div>
       </div>
     </>

@@ -1,38 +1,47 @@
-import React, { useState } from "react"; // ✅ Removed useEffect
+import React, { useState, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const CGPA = ({ semesters }) => {
+const CGPA = ({ semesters = [] }) => { // ✅ Default to empty array
   const [predictedCGPA, setPredictedCGPA] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Function to calculate GPA for each semester
-  const calculateSemesterGPA = (semester) => {
+  // ✅ Memoized function to calculate GPA for each semester
+  const calculateSemesterGPA = useCallback((semester) => {
+    if (!semester || !semester.courses || semester.courses.length === 0) return 0; // ✅ Prevent errors
+
     let totalUnits = 0;
     let totalGradePoints = 0;
 
     semester.courses.forEach((course) => {
-      totalUnits += parseInt(course.unit);
-      totalGradePoints += parseInt(course.unit) * parseInt(course.grade);
+      const unit = parseInt(course.unit) || 0;
+      const grade = parseInt(course.grade) || 0;
+      totalUnits += unit;
+      totalGradePoints += unit * grade;
     });
 
-    let gpa = (totalGradePoints / totalUnits).toFixed(2);
-    return isNaN(gpa) ? 0 : parseFloat(gpa);
-  };
+    let gpa = totalUnits > 0 ? (totalGradePoints / totalUnits).toFixed(2) : "0.00";
+    return parseFloat(gpa);
+  }, []);
 
-  // Extract past GPAs
+  // ✅ Extract past GPAs safely
   const pastGPAList = semesters.map((semester) => calculateSemesterGPA(semester));
 
-  // Function to predict CGPA
+  // ✅ Function to predict CGPA
   const predictCGPA = async () => {
-    if (semesters.length === 0) {
+    if (!Array.isArray(semesters) || semesters.length === 0) {
       toast.error("❌ No semester data available!");
       return;
     }
 
+    if (pastGPAList.every((gpa) => gpa === 0)) {
+      toast.warning("⚠️ Please enter valid grades before predicting CGPA.");
+      return;
+    }
+
     const payload = {
-      years_course: semesters.length, // Number of semesters
-      past_sgp: pastGPAList, // List of GPAs from each semester
+      years_course: semesters.length, // ✅ Number of semesters
+      past_sgp: pastGPAList, // ✅ List of GPAs from each semester
     };
 
     console.log("📤 Sending CGPA Prediction Request:", payload);
@@ -46,11 +55,12 @@ const CGPA = ({ semesters }) => {
       );
 
       console.log("✅ CGPA Prediction Response:", response.data);
-      if (response.data && response.data.predicted_cgpa) {
+
+      if (response.data?.predicted_cgpa !== undefined) {
         setPredictedCGPA(response.data.predicted_cgpa.toFixed(2));
         toast.success(`✅ Predicted CGPA: ${response.data.predicted_cgpa.toFixed(2)}`);
       } else {
-        toast.error("⚠️ Failed to predict CGPA.");
+        toast.error("⚠️ Failed to predict CGPA. Please try again.");
       }
     } catch (error) {
       console.error("❌ CGPA Prediction Error:", error);
