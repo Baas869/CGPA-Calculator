@@ -32,9 +32,9 @@ const PaymentStatus = () => {
           toast.info("⏳ Waiting for Monnify to update your payment...");
         }
 
-        // ✅ Wait 40 seconds before the first check
+        // ✅ Wait 10 seconds before the first check
         if (retryCount === 0) {
-          await new Promise((resolve) => setTimeout(resolve, 40000));
+          await new Promise((resolve) => setTimeout(resolve, 10000));
         }
 
         console.log("🛠️ Checking Payment Reference:", transactionReference);
