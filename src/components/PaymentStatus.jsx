@@ -19,6 +19,7 @@ const PaymentStatus = () => {
 
   useEffect(() => {
     if (!transactionReference) {
+      toast.dismiss(); // Remove old notifications
       toast.error("❌ Missing payment reference! Redirecting to payment page...");
       setTimeout(() => navigate("/payment"), 2000);
       return;
@@ -26,14 +27,17 @@ const PaymentStatus = () => {
 
     const verifyPaymentStatus = async () => {
       try {
-        // toast.info("⏳ Waiting for webhook update...");
+        if (retryCount === 0) {
+          toast.dismiss(); // Remove old notifications
+          toast.info("⏳ Waiting for Monnify to update your payment...");
+        }
 
         // ✅ Wait 40 seconds before the first check
-        await new Promise((resolve) => setTimeout(resolve, 40000));
+        if (retryCount === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 40000));
+        }
 
-        // toast.info("🔍 Checking payment status...");
-
-        console.log("🛠️ Extracted Payment Reference:", transactionReference);
+        console.log("🛠️ Checking Payment Reference:", transactionReference);
 
         // ✅ Construct API request
         const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${encodeURIComponent(transactionReference)}`;
@@ -47,15 +51,20 @@ const PaymentStatus = () => {
           setPaymentStatus(response.data.status);
 
           if (response.data.status === "paid") {
+            toast.dismiss(); // Remove previous notifications
             setIsPaid(true);
             toast.success("✅ Payment successful! Redirecting to dashboard...");
             setTimeout(() => navigate("/dashboard"), 2000);
+          } else if (response.data.status === "failed") {
+            toast.dismiss();
+            toast.error("❌ Payment failed! Redirecting to payment page...");
+            setTimeout(() => navigate("/payment"), 3000);
           } else if (response.data.status === "pending" && retryCount < 20) {
-            // 🔄 Retry every 5 seconds (max 3 times)
             setRetryCount((prev) => prev + 1);
-            setTimeout(verifyPaymentStatus, 5000);
+            setTimeout(verifyPaymentStatus, 5000); // Retry every 5 seconds
           } else {
-            toast.warning(`⚠️ Payment status: ${response.data.status}. Redirecting...`);
+            toast.dismiss();
+            toast.warning("⚠️ Payment status unclear. Redirecting to payment...");
             setTimeout(() => navigate("/payment"), 3000);
           }
         } else {
@@ -63,6 +72,7 @@ const PaymentStatus = () => {
         }
       } catch (error) {
         console.error("❌ Payment Status Error:", error);
+        toast.dismiss();
         toast.error("❌ An error occurred while verifying payment. Please try again.");
         setTimeout(() => navigate("/payment"), 3000);
       } finally {
