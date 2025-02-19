@@ -26,12 +26,12 @@ const PaymentStatus = () => {
 
     const verifyPaymentStatus = async () => {
       try {
-        toast.info("⏳ Waiting for webhook update...");
+        // toast.info("⏳ Waiting for webhook update...");
 
         // ✅ Wait 20 seconds before the first check
         await new Promise((resolve) => setTimeout(resolve, 20000));
 
-        toast.info("🔍 Checking payment status...");
+        // toast.info("🔍 Checking payment status...");
 
         console.log("🛠️ Extracted Payment Reference:", transactionReference);
 
