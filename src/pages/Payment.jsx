@@ -13,12 +13,14 @@ const Payment = () => {
   const handlePayment = async () => {
     try {
       if (!user || !user.id) {
+        toast.dismiss(); // Remove previous notifications
         toast.error("User ID missing! Please log in again.");
         navigate("/login"); // ✅ Now navigate is used
         return;
       }
 
       setLoading(true);
+      toast.dismiss(); // Remove previous notifications
       toast.info("Generating your payment link...");
 
       // Convert user ID to string
@@ -35,13 +37,16 @@ const Payment = () => {
       console.log("Payment API Response:", response.data);
 
       if (response.data && response.data.payment_link) {
+        toast.dismiss(); // Remove previous notifications
         toast.success("Redirecting to Monnify...");
         window.location.href = response.data.payment_link;
       } else {
+        toast.dismiss(); // Remove previous notifications
         toast.error("Failed to generate payment link! Please try again.");
       }
     } catch (error) {
       console.error("Payment error:", error.response ? error.response.data : error.message);
+      toast.dismiss(); // Remove previous notifications
       toast.error("An error occurred while initiating payment.");
     } finally {
       setLoading(false);

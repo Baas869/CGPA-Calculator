@@ -57,7 +57,7 @@ const PaymentStatus = () => {
             setTimeout(() => navigate("/dashboard"), 2000);
           } else if (response.data.status === "failed") {
             toast.dismiss();
-            toast.error("❌ Payment failed! Redirecting to payment page...");
+            toast.error("❌ Payment failed! Please try again");
             setTimeout(() => navigate("/payment"), 3000);
           } else if (response.data.status === "pending" && retryCount < 20) {
             setRetryCount((prev) => prev + 1);

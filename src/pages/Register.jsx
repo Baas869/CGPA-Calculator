@@ -22,6 +22,7 @@ const Register = () => {
       await registerUser(formData);
 
       // Show success toast
+      toast.dismiss(); // Remove previous notifications
       toast.success("Registration successful! Redirecting...");
 
       // Redirect to dashboard after successful registration
@@ -30,6 +31,7 @@ const Register = () => {
       console.error("Registration failed:", error);
 
       // Show error toast
+      toast.dismiss(); // Remove previous notifications
       toast.error("Registration failed. Please try again.");
     }
   };

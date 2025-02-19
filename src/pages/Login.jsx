@@ -41,6 +41,7 @@ const Login = () => {
       await loginUser(credentials);
 
       // Show success toast
+      toast.dismiss(); // Remove previous notifications
       toast.success("Login successful! Redirecting...");
 
       // Redirect to payment page after successful login.
@@ -49,6 +50,7 @@ const Login = () => {
       console.error("Login failed:", error);
 
       // Show error toast
+      toast.dismiss(); // Remove previous notifications
       toast.error("Login failed. Please check your credentials and try again.");
 
       setErrors({
