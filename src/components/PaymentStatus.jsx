@@ -28,8 +28,8 @@ const PaymentStatus = () => {
       try {
         toast.info("⏳ Waiting for webhook update...");
 
-        // ✅ Wait 5 seconds before the first check
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        // ✅ Wait 10 seconds before the first check
+        await new Promise((resolve) => setTimeout(resolve, 10000));
 
         toast.info("🔍 Checking payment status...");
 
