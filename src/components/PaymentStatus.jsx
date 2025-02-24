@@ -13,9 +13,9 @@ const PaymentStatus = () => {
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  // ✅ Extract payment reference from URL
+  // Extract payment reference from URL using "reference" (as sent by backend)
   const queryParams = new URLSearchParams(location.search);
-  const transactionReference = queryParams.get("paymentReference");
+  const transactionReference = queryParams.get("reference");
 
   useEffect(() => {
     if (!transactionReference) {
@@ -29,21 +29,20 @@ const PaymentStatus = () => {
       try {
         if (retryCount === 0) {
           toast.dismiss();
-          toast.info("⏳ Waiting for Monnify to update your payment...");
-        }
-
-        // ✅ Wait 10 seconds before the first check
-        if (retryCount === 0) {
-          await new Promise((resolve) => setTimeout(resolve, 10000));
+          toast.info("⏳ Waiting for Korapay to update your payment...");
+          // Wait 10 seconds before the first check
+          if (retryCount === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+          }
         }
 
         console.log("🛠️ Checking Payment Reference:", transactionReference);
 
-        // ✅ Construct API request
+        // Construct API request URL using query parameter "payment_ref"
         const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${encodeURIComponent(transactionReference)}`;
         console.log("🔍 Sending GET Request:", requestUrl);
 
-        // ✅ Send GET request to verify payment status
+        // Send GET request to verify payment status
         const response = await axios.get(requestUrl);
         console.log("✅ Payment API Response:", response.data);
 
@@ -56,7 +55,7 @@ const PaymentStatus = () => {
             toast.success("✅ Payment successful! Redirecting to dashboard...");
             setTimeout(() => navigate("/dashboard"), 2000);
           } else if (response.data.status === "pending" && retryCount < 10) {
-            // 🔄 Retry every 5 seconds, up to 10 times (50 seconds max)
+            // Retry every 5 seconds, up to 10 times
             setRetryCount((prev) => prev + 1);
             setTimeout(verifyPaymentStatus, 5000);
           } else {
@@ -90,7 +89,6 @@ const PaymentStatus = () => {
           {paymentStatus ? `Payment Status: ${paymentStatus}` : "Redirecting..."}
         </p>
       )}
-
       {user && (
         <p className="text-lg font-semibold">
           Checking payment for {user.name}...
