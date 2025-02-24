@@ -39,7 +39,7 @@ const PaymentStatus = () => {
         console.log("🛠️ Checking Payment Reference:", transactionReference);
 
         // Construct API request URL using query parameter "payment_ref"
-        const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?payment_ref=${encodeURIComponent(transactionReference)}`;
+        const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/status/?reference=${encodeURIComponent(transactionReference)}`;
         console.log("🔍 Sending GET Request:", requestUrl);
 
         // Send GET request to verify payment status
