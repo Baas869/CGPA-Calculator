@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import Pusher from "pusher-js";
 import { useNavigate } from "react-router-dom";
 
