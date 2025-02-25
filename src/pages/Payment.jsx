@@ -47,7 +47,7 @@ const Payment = () => {
     } catch (error) {
       console.error("Payment error:", error.response ? error.response.data : error.message);
       toast.dismiss(); // Remove previous notifications
-      toast.error("An error occurred while initiating payment.");
+      toast.error("An error occurred while initiating payment. Please refresh and login again");
     } finally {
       setLoading(false);
     }
