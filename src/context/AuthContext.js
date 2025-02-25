@@ -14,35 +14,69 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("isPaid", status);
   };
 
-  // Function to fetch the user profile using the stored token.
-  // This will update the user state and save the studentId to localStorage.
+  // Updated checkPaymentStatus that calls the dashboard endpoint
+  const checkPaymentStatus = useCallback(async (studentId) => {
+    try {
+      if (!studentId) return;
+      console.log(`🔍 Checking payment status for student ID: ${studentId}`);
+      const response = await axios.get(
+        `https://cgpacalculator-0ani.onrender.com/students/dashboard/?student_id=${studentId}`
+      );
+      // Assume the backend returns { status: "paid" } if payment is complete,
+      // otherwise some other status or message.
+      if (response.data && response.data.status === "paid") {
+        console.log("✅ Payment verified as PAID");
+        updatePaymentStatus(true);
+      } else {
+        console.log("⚠️ Payment status:", response.data.status);
+        updatePaymentStatus(false);
+      }
+    } catch (error) {
+      console.error("❌ Error checking payment status:", error.response ? error.response.data : error.message);
+      // Optionally, set isPaid to false on error
+      updatePaymentStatus(false);
+    }
+  }, []);
+
+  // Function to fetch user profile using token; updates user state and checks payment status.
   const fetchUserProfile = useCallback(async () => {
     try {
       if (!token) return;
+      // Use the correct endpoint (adjust trailing slash as needed)
       const response = await axios.get(
-        "https://cgpacalculator-0ani.onrender.com/students/auth/profile/",
+        "https://cgpacalculator-0ani.onrender.com/students/auth/profile",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data) {
         const student = response.data.student;
         setUser({ id: student.id, name: student.name });
         localStorage.setItem("studentId", student.id.toString());
-        // Optionally, you can check payment status here if desired.
+        await checkPaymentStatus(student.id);
       }
     } catch (error) {
       console.error("❌ Failed to fetch user profile:", error.response ? error.response.data : error.message);
+      // If profile fetch fails, we can choose to logout.
       logoutUser();
     }
-  }, [token]);
+  }, [token, checkPaymentStatus]);
 
-  // On mount, if a token exists in localStorage, fetch the user profile.
+  // On mount, load token and studentId from localStorage and fetch profile.
   useEffect(() => {
-    if (token) {
+    const storedToken = localStorage.getItem("token");
+    const storedStudentId = localStorage.getItem("studentId");
+    if (storedToken && storedStudentId) {
+      setToken(storedToken);
+      // Optionally, set a minimal user object:
+      setUser({ id: storedStudentId });
+      // Check payment status using stored studentId
+      checkPaymentStatus(storedStudentId);
+    }
+    if (storedToken) {
       fetchUserProfile();
     }
-  }, [token, fetchUserProfile]);
+  }, [fetchUserProfile, checkPaymentStatus]);
 
-  // Register user and automatically log them in
+  // Register user and automatically log them in, saving token and studentId in localStorage.
   const registerUser = async (userData) => {
     try {
       const response = await axios.post(
@@ -55,6 +89,7 @@ export const AuthProvider = ({ children }) => {
       setToken(token);
       localStorage.setItem("token", token);
       localStorage.setItem("studentId", registeredUser.id.toString());
+      await checkPaymentStatus(registeredUser.id);
       return response.data;
     } catch (error) {
       console.error("❌ Registration error:", error);
@@ -62,7 +97,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login user and store session token and studentId in localStorage
+  // Login user and store token and studentId in localStorage.
   const loginUser = async (credentials) => {
     try {
       const response = await axios.post(
@@ -79,7 +114,7 @@ export const AuthProvider = ({ children }) => {
       setToken(session_token);
       localStorage.setItem("token", session_token);
       localStorage.setItem("studentId", loggedInUser.id.toString());
-      // Optionally, check payment status here if needed.
+      await checkPaymentStatus(loggedInUser.id);
       return response.data;
     } catch (error) {
       console.error("❌ Login error:", error);
@@ -87,7 +122,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout function clears the user, token, and resets payment status, and removes them from localStorage.
+  // Logout function clears the user, token, and resets payment status and removes them from localStorage.
   const logoutUser = () => {
     setUser(null);
     setIsPaid(false);
@@ -121,6 +156,7 @@ export const AuthProvider = ({ children }) => {
         logoutUser,
         processPayment,
         fetchUserProfile,
+        checkPaymentStatus,
       }}
     >
       {children}
