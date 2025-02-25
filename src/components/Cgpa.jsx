@@ -52,6 +52,7 @@ const CGPA = ({ semesters = [] }) => {
         { headers: { "Content-Type": "application/json" } }
       );
       console.log("✅ CGPA Prediction Response:", response.data);
+      setPrediction(response.data);
 
       if (response.data && response.data.predicted_next_cgpa !== undefined) {
         setPrediction(response.data);
