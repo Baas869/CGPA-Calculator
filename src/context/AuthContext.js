@@ -4,7 +4,7 @@ import axios from "axios";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // User details stored in state
+  const [user, setUser] = useState(null); // User details in state
   const [isPaid, setIsPaid] = useState(false);
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
@@ -33,12 +33,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Wrap fetchUserProfile in useCallback for stable reference
+  // Wrap fetchUserProfile in useCallback so it has a stable reference
   const fetchUserProfile = useCallback(async () => {
     try {
       if (!token) return;
+      // Updated URL: Removed trailing slash
       const response = await axios.get(
-        "https://cgpacalculator-0ani.onrender.com/students/auth/profile/",
+        "https://cgpacalculator-0ani.onrender.com/students/auth/profile",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data) {
@@ -53,18 +54,10 @@ export const AuthProvider = ({ children }) => {
 
   // Load user session by verifying token on mount and when token changes
   useEffect(() => {
-    // Load token and studentId from localStorage
-    const storedToken = localStorage.getItem("token");
-    const storedStudentId = localStorage.getItem("studentId");
-    if (storedToken && storedStudentId) {
-      setToken(storedToken);
-      // Optionally, you can set a minimal user object if needed:
-      setUser({ id: storedStudentId });
-    }
-    if (storedToken) {
+    if (token) {
       fetchUserProfile();
     }
-  }, [fetchUserProfile]);
+  }, [token, fetchUserProfile]);
 
   // Register user and automatically log them in
   const registerUser = async (userData) => {
@@ -78,7 +71,6 @@ export const AuthProvider = ({ children }) => {
       setUser(registeredUser);
       setToken(token);
       localStorage.setItem("token", token);
-      localStorage.setItem("studentId", registeredUser.id.toString());
       return response.data;
     } catch (error) {
       console.error("❌ Registration error:", error);
@@ -86,7 +78,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login user and store session token along with student ID in localStorage
+  // Login user and store session token
   const loginUser = async (credentials) => {
     try {
       const response = await axios.post(
@@ -102,7 +94,6 @@ export const AuthProvider = ({ children }) => {
       setUser(loggedInUser);
       setToken(session_token);
       localStorage.setItem("token", session_token);
-      localStorage.setItem("studentId", loggedInUser.id.toString());
       await checkPaymentStatus(loggedInUser.id);
       return response.data;
     } catch (error) {
@@ -117,7 +108,6 @@ export const AuthProvider = ({ children }) => {
     setIsPaid(false);
     setToken("");
     localStorage.removeItem("token");
-    localStorage.removeItem("studentId");
   };
 
   // Process payment and update payment status
