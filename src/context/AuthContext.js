@@ -1,64 +1,16 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // User details in state only
+  const [user, setUser] = useState(null); // User details stored in state
   const [isPaid, setIsPaid] = useState(false);
-  const [token, setToken] = useState(""); // Token is stored in state only
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
 
-  // Function to update payment status manually
+  // Function to update payment status
   const updatePaymentStatus = (status) => {
     setIsPaid(status);
-  };
-
-  // Register user and automatically log them in (do not persist user details locally)
-  const registerUser = async (userData) => {
-    try {
-      const response = await axios.post(
-        "https://cgpacalculator-0ani.onrender.com/students/auth/register",
-        userData,
-        { headers: { "Content-Type": "application/json" } }
-      );
-      const { student: registeredUser, token } = response.data;
-      setUser(registeredUser);
-      setToken(token);
-      return response.data;
-    } catch (error) {
-      console.error("❌ Registration error:", error);
-      throw error;
-    }
-  };
-
-  // Login user and store session token in state only
-  const loginUser = async (credentials) => {
-    try {
-      const response = await axios.post(
-        "https://cgpacalculator-0ani.onrender.com/students/auth/login",
-        credentials,
-        { headers: { "Content-Type": "application/json" } }
-      );
-      console.log("✅ Login API response:", response.data);
-      if (!response.data || !response.data.student || !response.data.session_token) {
-        throw new Error("❌ Invalid login response: Missing student data or session token");
-      }
-      const { student: loggedInUser, session_token } = response.data;
-      setUser(loggedInUser);
-      setToken(session_token);
-      await checkPaymentStatus(loggedInUser.id);
-      return response.data;
-    } catch (error) {
-      console.error("❌ Login error:", error);
-      throw error;
-    }
-  };
-
-  // Logout function clears the user, token, and resets payment status (state only)
-  const logoutUser = () => {
-    setUser(null);
-    setIsPaid(false);
-    setToken("");
   };
 
   // Function to verify payment status for the logged-in user (using student ID)
@@ -79,6 +31,93 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("❌ Error checking payment status:", error);
     }
+  };
+
+  // Wrap fetchUserProfile in useCallback for stable reference
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      if (!token) return;
+      const response = await axios.get(
+        "https://cgpacalculator-0ani.onrender.com/students/auth/profile/",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data) {
+        setUser(response.data.student);
+        await checkPaymentStatus(response.data.student.id);
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch user profile:", error);
+      logoutUser();
+    }
+  }, [token]);
+
+  // Load user session by verifying token on mount and when token changes
+  useEffect(() => {
+    // Load token and studentId from localStorage
+    const storedToken = localStorage.getItem("token");
+    const storedStudentId = localStorage.getItem("studentId");
+    if (storedToken && storedStudentId) {
+      setToken(storedToken);
+      // Optionally, you can set a minimal user object if needed:
+      setUser({ id: storedStudentId });
+    }
+    if (storedToken) {
+      fetchUserProfile();
+    }
+  }, [fetchUserProfile]);
+
+  // Register user and automatically log them in
+  const registerUser = async (userData) => {
+    try {
+      const response = await axios.post(
+        "https://cgpacalculator-0ani.onrender.com/students/auth/register",
+        userData,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      const { student: registeredUser, token } = response.data;
+      setUser(registeredUser);
+      setToken(token);
+      localStorage.setItem("token", token);
+      localStorage.setItem("studentId", registeredUser.id.toString());
+      return response.data;
+    } catch (error) {
+      console.error("❌ Registration error:", error);
+      throw error;
+    }
+  };
+
+  // Login user and store session token along with student ID in localStorage
+  const loginUser = async (credentials) => {
+    try {
+      const response = await axios.post(
+        "https://cgpacalculator-0ani.onrender.com/students/auth/login",
+        credentials,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      console.log("✅ Login API response:", response.data);
+      if (!response.data || !response.data.student || !response.data.session_token) {
+        throw new Error("❌ Invalid login response: Missing student data or session token");
+      }
+      const { student: loggedInUser, session_token } = response.data;
+      setUser(loggedInUser);
+      setToken(session_token);
+      localStorage.setItem("token", session_token);
+      localStorage.setItem("studentId", loggedInUser.id.toString());
+      await checkPaymentStatus(loggedInUser.id);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Login error:", error);
+      throw error;
+    }
+  };
+
+  // Logout function clears the user, token, and resets payment status
+  const logoutUser = () => {
+    setUser(null);
+    setIsPaid(false);
+    setToken("");
+    localStorage.removeItem("token");
+    localStorage.removeItem("studentId");
   };
 
   // Process payment and update payment status
