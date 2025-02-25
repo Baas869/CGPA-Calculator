@@ -12,9 +12,9 @@ const PaymentStatus = () => {
   const [loading, setLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Extract payment reference from URL using "reference"
+  // Extract payment reference from URL using "paymentReference"
   const queryParams = new URLSearchParams(location.search);
-  const transactionReference = queryParams.get("reference");
+  const transactionReference = queryParams.get("paymentReference");
 
   useEffect(() => {
     if (!transactionReference) {
@@ -26,20 +26,19 @@ const PaymentStatus = () => {
 
     const verifyPaymentStatus = async () => {
       try {
-        // On the first attempt, wait 10 seconds
         if (retryCount === 0) {
           toast.dismiss();
           toast.info("⏳ Waiting for payment processing...");
+          // Wait 10 seconds before the first check
           await new Promise((resolve) => setTimeout(resolve, 10000));
         }
 
-        console.log("🛠️ Verifying Payment Reference:", transactionReference);
+        console.log("🛠️ Checking Payment Reference:", transactionReference);
 
-        // Construct API request using the new endpoint with payment_reference in the URL
+        // Construct API request URL using the new endpoint format
         const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/verify/${encodeURIComponent(transactionReference)}`;
         console.log("🔍 Sending GET Request:", requestUrl);
 
-        // Send GET request to verify payment status
         const response = await axios.get(requestUrl);
         console.log("✅ Payment API Response:", response.data);
 
@@ -55,7 +54,7 @@ const PaymentStatus = () => {
             toast.error("❌ Payment not successful. Redirecting to payment page...");
             setTimeout(() => navigate("/payment"), 3000);
           } else if (retryCount < 10) {
-            // If the message isn't one of the two expected ones (perhaps still processing), retry after 5 seconds
+            // If still processing, retry after 5 seconds
             setRetryCount((prev) => prev + 1);
             setTimeout(verifyPaymentStatus, 5000);
           } else {
@@ -88,9 +87,7 @@ const PaymentStatus = () => {
         <p className="text-lg font-semibold">Redirecting...</p>
       )}
       {user && (
-        <p className="text-lg font-semibold">
-          Checking payment for {user.name}...
-        </p>
+        <p className="text-lg font-semibold">Checking payment for {user.name}...</p>
       )}
     </div>
   );
