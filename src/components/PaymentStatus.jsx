@@ -6,11 +6,21 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const PaymentStatus = () => {
-  const { user, setIsPaid } = useContext(AuthContext);
+  const { user, setUser, setIsPaid } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
-  
+
+  // Rehydrate user from localStorage if missing
+  useEffect(() => {
+    if (!user) {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    }
+  }, [user, setUser]);
+
   // Extract payment reference from URL using "paymentReference"
   const queryParams = new URLSearchParams(location.search);
   const transactionReference = queryParams.get("paymentReference");
@@ -81,9 +91,7 @@ const PaymentStatus = () => {
         <p className="text-lg font-semibold">Redirecting...</p>
       )}
       {user && (
-        <p className="text-lg font-semibold">
-          Checking payment for {user.name}...
-        </p>
+        <p className="text-lg font-semibold">Checking payment for {user.name}...</p>
       )}
     </div>
   );
