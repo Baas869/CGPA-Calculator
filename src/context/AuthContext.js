@@ -1,11 +1,13 @@
-import React, { createContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useState } from "react";
 import axios from "axios";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Minimal user details stored in state
+  // User details are stored only in state (not rehydrated on refresh)
+  const [user, setUser] = useState(null);
   const [isPaid, setIsPaid] = useState(false);
+  // Token is persisted in localStorage
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   // Function to update payment status and persist it if needed
@@ -15,7 +17,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Check payment status using student ID by calling the dashboard endpoint.
-  const checkPaymentStatus = useCallback(async (studentId) => {
+  const checkPaymentStatus = async (studentId) => {
     try {
       if (!studentId) return;
       console.log(`🔍 Checking payment status for student ID: ${studentId}`);
@@ -36,20 +38,10 @@ export const AuthProvider = ({ children }) => {
       );
       updatePaymentStatus(false);
     }
-  }, []);
+  };
 
-  // On mount, restore session from localStorage (token and studentId)
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedStudentId = localStorage.getItem("studentId");
-    if (storedToken && storedStudentId) {
-      setToken(storedToken);
-      // Set a minimal user object from the stored studentId.
-      setUser({ id: storedStudentId });
-      // Check payment status using stored studentId.
-      checkPaymentStatus(storedStudentId);
-    }
-  }, [checkPaymentStatus]);
+  // Note: We no longer auto-rehydrate the user from localStorage on mount.
+  // This forces a logout on page refresh, even though the token remains saved.
 
   // Register user and automatically log them in
   const registerUser = async (userData) => {
@@ -60,6 +52,7 @@ export const AuthProvider = ({ children }) => {
         { headers: { "Content-Type": "application/json" } }
       );
       const { student: registeredUser, token } = response.data;
+      // Set minimal user details in state
       setUser({ id: registeredUser.id, name: registeredUser.name });
       setToken(token);
       localStorage.setItem("token", token);
@@ -72,7 +65,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login user and store token and studentId in localStorage
+  // Login user and store token and studentId in localStorage.
   const loginUser = async (credentials) => {
     try {
       const response = await axios.post(
@@ -97,14 +90,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout function clears the user, token, and resets payment status, and removes them from localStorage.
+  // Logout function clears the user and resets payment status,
+  // but leaves the token in localStorage as required.
   const logoutUser = () => {
     setUser(null);
     setIsPaid(false);
     setToken("");
-    localStorage.removeItem("token");
     localStorage.removeItem("studentId");
     localStorage.removeItem("isPaid");
+    // Note: We intentionally do not remove the token from localStorage,
+    // so that it remains saved after a refresh.
   };
 
   // Process payment and update payment status (for demonstration)
