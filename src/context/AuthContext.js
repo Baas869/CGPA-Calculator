@@ -4,7 +4,7 @@ import axios from "axios";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // User details are stored only in state (not rehydrated on refresh)
+  // User details stored only in state (not rehydrated on refresh)
   const [user, setUser] = useState(null);
   const [isPaid, setIsPaid] = useState(false);
   // Token is persisted in localStorage
@@ -39,9 +39,6 @@ export const AuthProvider = ({ children }) => {
       updatePaymentStatus(false);
     }
   };
-
-  // Note: We no longer auto-rehydrate the user from localStorage on mount.
-  // This forces a logout on page refresh, even though the token remains saved.
 
   // Register user and automatically log them in
   const registerUser = async (userData) => {
@@ -90,16 +87,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout function clears the user and resets payment status,
-  // but leaves the token in localStorage as required.
+  // Logout function clears the user, token, and resets payment status,
+  // and removes studentId and payment status from localStorage.
   const logoutUser = () => {
     setUser(null);
     setIsPaid(false);
     setToken("");
+    localStorage.removeItem("token");
     localStorage.removeItem("studentId");
     localStorage.removeItem("isPaid");
-    // Note: We intentionally do not remove the token from localStorage,
-    // so that it remains saved after a refresh.
   };
 
   // Process payment and update payment status (for demonstration)
