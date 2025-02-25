@@ -4,8 +4,8 @@ import { toast } from "react-toastify";
 import { AuthContext } from "../context/AuthContext";
 
 const CGPA = ({ semesters = [] }) => {
-  const { token } = useContext(AuthContext); // Extract the token from context
-  const [predictedCGPA, setPredictedCGPA] = useState(null);
+  const { token } = useContext(AuthContext); // Extract session token from context
+  const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // Memoized function to calculate GPA for each semester
@@ -46,7 +46,6 @@ const CGPA = ({ semesters = [] }) => {
 
     try {
       setLoading(true);
-      // Append the session token as a query parameter.
       const response = await axios.post(
         `https://cgpacalculator-0ani.onrender.com/predict/predict_cgpa?session_token=${token}`,
         payload,
@@ -54,9 +53,9 @@ const CGPA = ({ semesters = [] }) => {
       );
       console.log("✅ CGPA Prediction Response:", response.data);
 
-      if (response.data && response.data.predicted_cgpa !== undefined) {
-        setPredictedCGPA(response.data.predicted_cgpa.toFixed(2));
-        toast.success(`✅ Predicted CGPA: ${response.data.predicted_cgpa.toFixed(2)}`);
+      if (response.data && response.data.predicted_next_cgpa !== undefined) {
+        setPrediction(response.data);
+        toast.success(`✅ Predicted CGPA: ${response.data.predicted_next_cgpa.toFixed(2)}`);
       } else {
         toast.error("⚠️ Failed to predict CGPA. Please try again.");
       }
@@ -72,14 +71,19 @@ const CGPA = ({ semesters = [] }) => {
     <div className="mt-6 p-4 border rounded bg-white shadow-md text-center">
       <h2 className="text-xl font-bold text-green-600">CGPA Predictor</h2>
       <p className="text-gray-600">Predict your CGPA based on past semester results.</p>
-      {predictedCGPA !== null && (
-        <p className="text-lg font-semibold text-blue-500 mt-2">
-          📊 Predicted CGPA: {predictedCGPA}
-        </p>
+      
+      {prediction && (
+        <div className="mt-4 text-lg">
+          <p><strong>Current CGPA:</strong> {prediction.current_cgpa}</p>
+          <p><strong>Predicted Next CGPA:</strong> {prediction.predicted_next_cgpa}</p>
+          <p><strong>Predicted Graduation Class:</strong> {prediction.predicted_graduation_class}</p>
+          <p><strong>Improvement Suggestion:</strong> {prediction.improvement_suggestion}</p>
+        </div>
       )}
+
       <button
         onClick={predictCGPA}
-        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4"
+        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 w-full max-w-sm"
         disabled={loading}
       >
         {loading ? "Calculating..." : "Predict CGPA"}
