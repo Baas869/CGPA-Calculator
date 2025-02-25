@@ -35,8 +35,8 @@ const PaymentStatus = () => {
 
     const verifyPaymentStatus = async () => {
       try {
-        toast.dismiss();
-        toast.info("⏳ Waiting 5 seconds for payment processing...");
+        // toast.dismiss();
+        // toast.info("⏳ Waiting 5 seconds for payment processing...");
         // Wait 5 seconds before the check
         await new Promise((resolve) => setTimeout(resolve, 5000));
 
@@ -59,11 +59,11 @@ const PaymentStatus = () => {
             setTimeout(() => navigate("/dashboard"), 2000);
           } else if (msg === "Payment not successful, please try again.") {
             toast.dismiss();
-            toast.error("❌ Payment not successful. Redirecting to payment page...");
+            toast.error("❌ Payment not successful. Please try again...");
             setTimeout(() => navigate("/payment"), 3000);
           } else {
             toast.dismiss();
-            toast.warning("⚠️ Payment status unclear. Redirecting to payment...");
+            toast.warning("⚠️ Payment status unclear. Please try again...");
             setTimeout(() => navigate("/payment"), 3000);
           }
         } else {
