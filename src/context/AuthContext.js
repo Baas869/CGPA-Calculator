@@ -1,13 +1,13 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // User details stored only in state (not rehydrated on refresh)
+  // User details stored in state
   const [user, setUser] = useState(null);
   const [isPaid, setIsPaid] = useState(false);
-  // Token is persisted in localStorage
+  // Token persisted in localStorage
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   // Function to update payment status and persist it if needed
@@ -16,19 +16,42 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("isPaid", status);
   };
 
+  // Function to fetch the user profile using the token
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      if (!token) return;
+      const response = await axios.get(
+        "https://cgpacalculator-0ani.onrender.com/students/auth/profile",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data) {
+        const student = response.data.student;
+        const updatedUser = { id: student.id, name: student.name };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch user profile:", error.response ? error.response.data : error.message);
+      // Optionally, you can log the user out if profile fetch fails:
+      // logoutUser();
+    }
+  }, [token]);
+
   // Check payment status using student ID by calling the dashboard endpoint.
-  const checkPaymentStatus = async (studentId) => {
+  const checkPaymentStatus = useCallback(async (studentId) => {
     try {
       if (!studentId) return;
-      // console.log(`🔍 Checking payment status for student ID: ${studentId}`);
+      console.log(`🔍 Checking payment status for student ID: ${studentId}`);
       const response = await axios.get(
         `https://cgpacalculator-0ani.onrender.com/students/dashboard/?student_id=${studentId}`
       );
       if (response.data && response.data.status === "paid") {
-        // console.log("✅ Payment verified as PAID");
+        console.log("✅ Payment verified as PAID");
         updatePaymentStatus(true);
+        // Re-fetch updated user profile after successful payment
+        await fetchUserProfile();
       } else {
-        // console.log("⚠️ Payment status:", response.data.status);
+        console.log("⚠️ Payment status:", response.data.status);
         updatePaymentStatus(false);
       }
     } catch (error) {
@@ -38,7 +61,19 @@ export const AuthProvider = ({ children }) => {
       );
       updatePaymentStatus(false);
     }
-  };
+  }, [fetchUserProfile]);
+
+  // On mount, if a token exists, restore session from localStorage and rehydrate user details.
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
+      const storedStudentId = JSON.parse(storedUser).id;
+      checkPaymentStatus(storedStudentId);
+    }
+  }, [checkPaymentStatus]);
 
   // Register user and automatically log them in
   const registerUser = async (userData) => {
@@ -49,11 +84,12 @@ export const AuthProvider = ({ children }) => {
         { headers: { "Content-Type": "application/json" } }
       );
       const { student: registeredUser, token } = response.data;
-      // Set minimal user details in state
-      setUser({ id: registeredUser.id, name: registeredUser.name });
+      const newUser = { id: registeredUser.id, name: registeredUser.name };
+      setUser(newUser);
       setToken(token);
       localStorage.setItem("token", token);
       localStorage.setItem("studentId", registeredUser.id.toString());
+      localStorage.setItem("user", JSON.stringify(newUser));
       await checkPaymentStatus(registeredUser.id);
       return response.data;
     } catch (error) {
@@ -62,7 +98,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login user and store token and studentId in localStorage.
+  // Login user and store token and user details in localStorage.
   const loginUser = async (credentials) => {
     try {
       const response = await axios.post(
@@ -70,16 +106,20 @@ export const AuthProvider = ({ children }) => {
         credentials,
         { headers: { "Content-Type": "application/json" } }
       );
-      // console.log("✅ Login API response:", response.data);
+      console.log("✅ Login API response:", response.data);
       if (!response.data || !response.data.student || !response.data.session_token) {
         throw new Error("❌ Invalid login response: Missing student data or session token");
       }
       const { student: loggedInUser, session_token } = response.data;
-      setUser({ id: loggedInUser.id, name: loggedInUser.name });
+      const newUser = { id: loggedInUser.id, name: loggedInUser.name };
+      setUser(newUser);
       setToken(session_token);
       localStorage.setItem("token", session_token);
       localStorage.setItem("studentId", loggedInUser.id.toString());
+      localStorage.setItem("user", JSON.stringify(newUser));
       await checkPaymentStatus(loggedInUser.id);
+      // Optionally, re-fetch updated profile to ensure current details:
+      await fetchUserProfile();
       return response.data;
     } catch (error) {
       console.error("❌ Login error:", error);
@@ -88,13 +128,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Logout function clears the user, token, and resets payment status,
-  // and removes studentId and payment status from localStorage.
+  // and removes user info, studentId, and payment status from localStorage.
   const logoutUser = () => {
     setUser(null);
     setIsPaid(false);
     setToken("");
     localStorage.removeItem("token");
     localStorage.removeItem("studentId");
+    localStorage.removeItem("user");
     localStorage.removeItem("isPaid");
   };
 
@@ -121,6 +162,7 @@ export const AuthProvider = ({ children }) => {
         loginUser,
         logoutUser,
         processPayment,
+        fetchUserProfile,
         checkPaymentStatus,
       }}
     >
@@ -128,3 +170,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;
