@@ -9,13 +9,13 @@ const Footer = () => {
           <p>&copy; {new Date().getFullYear()} Baas Tech. All rights reserved.</p>
         </div>
         <div className="flex space-x-4">
-          <Link to="/privacy" className="hover:text-white">
+          <Link to="/" className="hover:text-white">
             Privacy Policy
           </Link>
-          <Link to="/terms" className="hover:text-white">
+          <Link to="/" className="hover:text-white">
             Terms of Service
           </Link>
-          <Link to="/support" className="hover:text-white">
+          <Link to="/" className="hover:text-white">
             Support
           </Link>
         </div>

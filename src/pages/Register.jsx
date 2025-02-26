@@ -28,7 +28,7 @@ const Register = () => {
       // Redirect to dashboard after successful registration
       navigate("/dashboard");
     } catch (error) {
-      console.error("Registration failed:", error);
+      // console.error("Registration failed:", error);
 
       // Show error toast
       toast.dismiss(); // Remove previous notifications

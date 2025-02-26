@@ -46,19 +46,19 @@ const CGPA = ({ semesters = [] }) => {
   // Function to predict CGPA using the backend predict API.
   const predictCGPA = async () => {
     if (yearsCourse === "") {
-      toast.error("❌ Please enter the number of years in your course.");
+      toast.error("Please enter the number of years in your course.");
       return;
     }
     if (!validateYearsCourse(yearsCourse)) {
-      toast.error("❌ The number of years must be a single digit (1-9).");
+      toast.error("The number of years must be a single digit (1-9).");
       return;
     }
     if (!Array.isArray(semesters) || semesters.length === 0) {
-      toast.error("❌ No semester data available!");
+      toast.error("No semester data available!");
       return;
     }
     if (pastGPAList.every((gpa) => gpa === 0)) {
-      toast.warning("⚠️ Please enter valid grades before predicting CGPA.");
+      toast.warning("Please enter valid grades before predicting CGPA.");
       return;
     }
 
@@ -67,7 +67,7 @@ const CGPA = ({ semesters = [] }) => {
       past_sgp: pastGPAList,              // List of GPAs from each semester
     };
 
-    console.log("📤 Sending CGPA Prediction Request:", payload);
+    // console.log("📤 Sending CGPA Prediction Request:", payload);
 
     try {
       setLoading(true);
@@ -76,16 +76,16 @@ const CGPA = ({ semesters = [] }) => {
         payload,
         { headers: { "Content-Type": "application/json" } }
       );
-      console.log("✅ CGPA Prediction Response:", response.data);
+      // console.log("✅ CGPA Prediction Response:", response.data);
       if (response.data && response.data.predicted_next_cgpa !== undefined) {
         setPrediction(response.data);
-        toast.success(`✅ Predicted CGPA: ${response.data.predicted_next_cgpa.toFixed(2)}`);
+        toast.success(`Predicted CGPA: ${response.data.predicted_next_cgpa.toFixed(2)}`);
       } else {
-        toast.error("⚠️ Failed to predict CGPA. Please try again.");
+        toast.error("Failed to predict CGPA. Please try again.");
       }
     } catch (error) {
-      console.error("❌ CGPA Prediction Error:", error);
-      toast.error("❌ Error predicting CGPA. Please try again.");
+      // console.error("CGPA Prediction Error:", error);
+      toast.error("Error predicting CGPA. Please try again.");
     } finally {
       setLoading(false);
     }

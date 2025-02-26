@@ -28,7 +28,7 @@ const PaymentStatus = () => {
   useEffect(() => {
     if (!transactionReference) {
       toast.dismiss();
-      toast.error("❌ Missing payment reference! Redirecting to payment page...");
+      toast.error("Missing payment reference! Redirecting to payment page...");
       setTimeout(() => navigate("/payment"), 2000);
       return;
     }
@@ -40,15 +40,15 @@ const PaymentStatus = () => {
         // Wait 5 seconds before the check
         await new Promise((resolve) => setTimeout(resolve, 5000));
 
-        console.log("🛠️ Checking Payment Reference:", transactionReference);
+        // console.log("🛠️ Checking Payment Reference:", transactionReference);
 
         // Construct API request URL using the new endpoint format
         const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/verify/${encodeURIComponent(transactionReference)}`;
-        console.log("🔍 Sending GET Request:", requestUrl);
+        // console.log("🔍 Sending GET Request:", requestUrl);
 
         // Send GET request to verify payment status
         const response = await axios.get(requestUrl);
-        console.log("✅ Payment API Response:", response.data);
+        // console.log("✅ Payment API Response:", response.data);
 
         if (response.data && response.data.message) {
           const msg = response.data.message;
@@ -59,20 +59,20 @@ const PaymentStatus = () => {
             setTimeout(() => navigate("/dashboard"), 2000);
           } else if (msg === "Payment not successful, please try again.") {
             toast.dismiss();
-            toast.error("❌ Payment not successful. Please try again...");
+            toast.error("Payment not successful. Please try again...");
             setTimeout(() => navigate("/payment"), 3000);
           } else {
             toast.dismiss();
-            toast.warning("⚠️ Payment status unclear. Please try again...");
+            toast.warning("Payment status unclear. Please try again...");
             setTimeout(() => navigate("/payment"), 3000);
           }
         } else {
           throw new Error("Invalid response from server.");
         }
       } catch (error) {
-        console.error("❌ Payment Status Error:", error);
+        // console.error("Payment Status Error:", error);
         toast.dismiss();
-        toast.error("❌ An error occurred while verifying payment. Please try again.");
+        toast.error("An error occurred while verifying payment. Please try again.");
         setTimeout(() => navigate("/payment"), 3000);
       } finally {
         setLoading(false);

@@ -20,15 +20,15 @@ export const AuthProvider = ({ children }) => {
   const checkPaymentStatus = async (studentId) => {
     try {
       if (!studentId) return;
-      console.log(`🔍 Checking payment status for student ID: ${studentId}`);
+      // console.log(`🔍 Checking payment status for student ID: ${studentId}`);
       const response = await axios.get(
         `https://cgpacalculator-0ani.onrender.com/students/dashboard/?student_id=${studentId}`
       );
       if (response.data && response.data.status === "paid") {
-        console.log("✅ Payment verified as PAID");
+        // console.log("✅ Payment verified as PAID");
         updatePaymentStatus(true);
       } else {
-        console.log("⚠️ Payment status:", response.data.status);
+        // console.log("⚠️ Payment status:", response.data.status);
         updatePaymentStatus(false);
       }
     } catch (error) {
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
         credentials,
         { headers: { "Content-Type": "application/json" } }
       );
-      console.log("✅ Login API response:", response.data);
+      // console.log("✅ Login API response:", response.data);
       if (!response.data || !response.data.student || !response.data.session_token) {
         throw new Error("❌ Invalid login response: Missing student data or session token");
       }

@@ -26,7 +26,7 @@ const Payment = () => {
       // Convert user ID to string
       const studentIdString = String(user.id);
 
-      console.log("Sending Payment Request:", { student_id: studentIdString });
+      // console.log("Sending Payment Request:", { student_id: studentIdString });
 
       const response = await axios.post(
         "https://cgpacalculator-0ani.onrender.com/payment/payment/initiate",
@@ -34,7 +34,7 @@ const Payment = () => {
         { headers: { "Content-Type": "application/json" } }
       );
 
-      console.log("Payment API Response:", response.data);
+      // console.log("Payment API Response:", response.data);
 
       if (response.data && response.data.payment_link) {
         toast.dismiss(); // Remove previous notifications
@@ -45,7 +45,7 @@ const Payment = () => {
         toast.error("Failed to generate payment link! Please try again.");
       }
     } catch (error) {
-      console.error("Payment error:", error.response ? error.response.data : error.message);
+      // console.error("Payment error:", error.response ? error.response.data : error.message);
       toast.dismiss(); // Remove previous notifications
       toast.error("An error occurred while initiating payment. Please refresh and login again");
     } finally {
