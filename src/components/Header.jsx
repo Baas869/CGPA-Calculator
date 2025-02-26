@@ -67,7 +67,7 @@ const Header = () => {
             </li>
             <li>
               <NavLink 
-                to="/features" 
+                to="/dashboard" 
                 onClick={() => setMenuOpen(false)}
                 className={({ isActive }) => isActive ? "block text-white font-bold" : "block hover:text-gray-200 text-black"}
               >

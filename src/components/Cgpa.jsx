@@ -7,34 +7,52 @@ const CGPA = ({ semesters = [] }) => {
   const { token } = useContext(AuthContext);
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
+  // New state for the number of years in the course
+  const [yearsCourse, setYearsCourse] = useState("");
 
-  // Function to calculate SGPA for a single semester (weighted average)
+  // Validate that yearsCourse is a single digit between 1 and 9
+  const validateYearsCourse = (value) => {
+    return /^[1-9]$/.test(value);
+  };
+
+  const handleYearsCourseChange = (e) => {
+    const value = e.target.value;
+    // Allow empty value or a single valid digit
+    if (value === "" || validateYearsCourse(value)) {
+      setYearsCourse(value);
+    } else {
+      toast.error("Please enter a single digit between 1 and 9.");
+    }
+  };
+
+  // Memoized function to calculate GPA for each semester
   const calculateSemesterGPA = useCallback((semester) => {
     if (!semester || !semester.courses || semester.courses.length === 0) return 0;
     let totalUnits = 0;
     let totalGradePoints = 0;
     semester.courses.forEach((course) => {
-      const unit = parseFloat(course.unit) || 0;
-      const grade = parseFloat(course.grade) || 0;
+      const unit = parseInt(course.unit) || 0;
+      const grade = parseInt(course.grade) || 0;
       totalUnits += unit;
       totalGradePoints += unit * grade;
     });
-    return totalUnits > 0 ? totalGradePoints / totalUnits : 0;
+    let gpa = totalUnits > 0 ? (totalGradePoints / totalUnits).toFixed(2) : "0.00";
+    return parseFloat(gpa);
   }, []);
 
-  // Build an array of semester GPAs (SGPAs)
+  // Extract past GPAs safely
   const pastGPAList = semesters.map((semester) => calculateSemesterGPA(semester));
-
-  // Compute current CGPA as the arithmetic mean of the semester GPAs
-  const currentCGPA =
-    pastGPAList.length > 0
-      ? (
-          pastGPAList.reduce((sum, sgpa) => sum + sgpa, 0) / pastGPAList.length
-        ).toFixed(2)
-      : "0.00";
 
   // Function to predict CGPA using the backend predict API.
   const predictCGPA = async () => {
+    if (yearsCourse === "") {
+      toast.error("❌ Please enter the number of years in your course.");
+      return;
+    }
+    if (!validateYearsCourse(yearsCourse)) {
+      toast.error("❌ The number of years must be a single digit (1-9).");
+      return;
+    }
     if (!Array.isArray(semesters) || semesters.length === 0) {
       toast.error("❌ No semester data available!");
       return;
@@ -45,9 +63,8 @@ const CGPA = ({ semesters = [] }) => {
     }
 
     const payload = {
-      // Use the number of years (each year = 2 semesters)
-      years_course: semesters.length / 2, 
-      past_sgp: pastGPAList,
+      years_course: Number(yearsCourse), // Use the input value
+      past_sgp: pastGPAList,              // List of GPAs from each semester
     };
 
     console.log("📤 Sending CGPA Prediction Request:", payload);
@@ -78,16 +95,29 @@ const CGPA = ({ semesters = [] }) => {
     <div className="mt-6 p-4 border rounded bg-white shadow-md text-center">
       <h2 className="text-xl font-bold text-green-600">CGPA Predictor</h2>
       <p className="text-gray-600">Predict your CGPA based on past semester results.</p>
-      
-      {/* Display the current CGPA computed as the arithmetic mean of semester SGPAs */}
-      <div className="mt-4">
-        <p className="text-lg font-semibold">
-          <strong>Current CGPA:</strong> {currentCGPA}
-        </p>
+
+      {/* Input for number of years in the course */}
+      <div className="my-4">
+        <label htmlFor="yearsCourse" className="block font-bold mb-1">
+          Enter number of years in your course:
+        </label>
+        <input
+          type="number"
+          id="yearsCourse"
+          className="border p-2 rounded w-full max-w-sm mx-auto"
+          placeholder="e.g., 4"
+          value={yearsCourse}
+          onChange={handleYearsCourseChange}
+          min="1"
+          max="9"
+        />
       </div>
 
       {prediction && (
         <div className="mt-4 text-lg">
+          <p>
+            <strong>Current CGPA:</strong> {prediction.current_cgpa}
+          </p>
           <p>
             <strong>Predicted Next CGPA:</strong> {prediction.predicted_next_cgpa}
           </p>

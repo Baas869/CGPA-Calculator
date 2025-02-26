@@ -117,7 +117,7 @@ function Offers() {
           GPA CALCULATOR
         </span>
 
-        <div className="flex border-b-2 pb-3">
+        <div className="flex flex-col md:flex-row border-b-2 pb-3">
           <div className="w-52 ml-auto mr-auto">
             <SemiCircleProgressBar value={results.CGPA} />
           </div>
