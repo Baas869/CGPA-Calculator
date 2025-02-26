@@ -1,35 +1,21 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import Semester from "../semester/Semester.js";
 import SemesterButton from "./SemesterButton.js";
 import SemiCircleProgressBar from "./CircleProgressBar.jsx";
 import { CourseObject, calculateCGPA } from "../../utils.js";
-import CGPA from "../../components/Cgpa.jsx"; // ✅ Import CGPA component
+import CGPA from "../../components/Cgpa.jsx"; // Import CGPA component
 
 function Offers() {
-  const [semesters, setSemesters] = useState([]);
+  // Initialize semesters with one default semester
+  const [semesters, setSemesters] = useState([{ courses: [new CourseObject("", 0, 5)] }]);
   const [activeSemesterID, setActiveSemester] = useState(0);
-  const localStorageKey = "results";
   const { isPaid } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let results = localStorage.getItem(localStorageKey);
-    if (results !== null) {
-      results = JSON.parse(results);
-    }
-    if (!results || results.length === 0) {
-      results = [{ courses: [new CourseObject("", 0, 5)] }];
-    }
-
-    setSemesters(results);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(localStorageKey, JSON.stringify(semesters));
-  }, [semesters]);
-
+  // All localStorage usage has been removed.
+  
   const addCourse = (semesterIndex, course) => {
     const newSemesters = [...semesters];
     newSemesters[semesterIndex].courses.push(course);
@@ -94,7 +80,7 @@ function Offers() {
     }
   };
 
-  const results = calculateCGPA(semesters); // ✅ Used correctly
+  const results = calculateCGPA(semesters);
 
   return (
     <>
@@ -112,7 +98,7 @@ function Offers() {
         </div>
       )}
 
-      <div className="content flex flex-col grow p-3 gap-1">
+      <div className="content flex flex-col grow p-3 px-7 gap-1">
         <span className="content__header mb-2 border-b-4 border-[#00cc66] self-start pb-3">
           GPA CALCULATOR
         </span>
@@ -167,7 +153,7 @@ function Offers() {
 
           <div id="details-section" className=""></div>
 
-          {/* ✅ Added CGPA Component & Passed Required Props */}
+          {/* CGPA Component */}
           <CGPA semesters={semesters} />
         </div>
       </div>
