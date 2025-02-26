@@ -115,16 +115,16 @@ const CGPA = ({ semesters = [] }) => {
 
       {prediction && (
         <div className="mt-4 text-lg">
-          <p>
+          {/* <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2">
             <strong>Current CGPA:</strong> {prediction.current_cgpa}
-          </p>
-          <p>
+          </p> */}
+          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2">
             <strong>Predicted Next CGPA:</strong> {prediction.predicted_next_cgpa}
           </p>
-          <p>
+          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2">
             <strong>Predicted Graduation Class:</strong> {prediction.predicted_graduation_class}
           </p>
-          <p>
+          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2">
             <strong>Improvement Suggestion:</strong> {prediction.improvement_suggestion}
           </p>
         </div>
