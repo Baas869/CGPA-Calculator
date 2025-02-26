@@ -112,7 +112,7 @@ function Offers() {
         </div>
       )}
 
-      <div className="content flex flex-col grow p-3 px-7 gap-1">
+      <div className="content flex flex-col grow p-3 gap-1">
         <span className="content__header mb-2 border-b-4 border-[#00cc66] self-start pb-3">
           GPA CALCULATOR
         </span>

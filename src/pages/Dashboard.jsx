@@ -23,7 +23,7 @@ const Dashboard = () => {
   }, [user, navigate, location.search]);
 
   return (
-    <div className="pageContainer p-6">
+    <div className="pageContainer">
       {loading ? (
         <p className="text-lg font-semibold">Loading dashboard...</p>
       ) : (
