@@ -112,7 +112,7 @@ function Offers() {
               <span>Units Total: {results.totalUnits}</span>
             </span>
             <button className="bg-[#00cc66] p-3 rounded text-white" onClick={handleViewAnalysis}>
-              View Analysis
+              Use AI Predictor
             </button>
           </div>
         </div>
