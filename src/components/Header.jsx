@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import {ReactComponent as Logo} from '../logo.svg'
+import React, { useState, useContext } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { ReactComponent as Logo } from '../logo.svg';
+import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
+import { AuthContext } from '../context/AuthContext';
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user, logoutUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
+
+  const handleLogout = () => {
+    logoutUser();
+    navigate("/login");
+  };
 
   return (
     <header className="bg-[#00994D] text-white shadow-md">
@@ -34,12 +43,15 @@ const Header = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink 
-                to="/contact" 
-                className={({ isActive }) => isActive ? "text-white font-bold" : "hover:text-gray-200 text-black"}
-              >
-                About
-              </NavLink>
+              {user ? (
+                <button onClick={handleLogout} className="focus:outline-none" title="Logout">
+                  <FaSignOutAlt className="w-6 h-6" />
+                </button>
+              ) : (
+                <Link to="/login" title="Login">
+                  <FaSignInAlt className="w-6 h-6" />
+                </Link>
+              )}
             </li>
           </ul>
         </nav>
@@ -75,13 +87,24 @@ const Header = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink 
-                to="/about" 
-                onClick={() => setMenuOpen(false)}
-                className={({ isActive }) => isActive ? "block text-white font-bold" : "block hover:text-gray-200 text-black"}
-              >
-                About
-              </NavLink>
+              {user ? (
+                <button 
+                  onClick={() => { setMenuOpen(false); handleLogout(); }} 
+                  className="block w-full text-left text-white font-bold"
+                  title="Logout"
+                >
+                  <FaSignOutAlt className="w-6 h-6 inline mr-2" /> Logout
+                </button>
+              ) : (
+                <NavLink 
+                  to="/login" 
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) => isActive ? "block text-white font-bold" : "block hover:text-gray-200 text-black"}
+                  title="Login"
+                >
+                  <FaSignInAlt className="w-6 h-6 inline mr-2" /> Login
+                </NavLink>
+              )}
             </li>
           </ul>
         </nav>
