@@ -7,46 +7,41 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Payment = () => {
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate(); // ✅ Make sure this is used in handlePayment
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const handlePayment = async () => {
     try {
       if (!user || !user.id) {
-        toast.dismiss(); // Remove previous notifications
+        toast.dismiss();
         toast.error("User ID missing! Please log in again.");
-        navigate("/login"); // ✅ Now navigate is used
+        navigate("/login");
         return;
       }
 
       setLoading(true);
-      toast.dismiss(); // Remove previous notifications
+      toast.dismiss();
       toast.info("Generating your payment link...");
 
-      // Convert user ID to string
-      const studentIdString = String(user.id);
-
-      // console.log("Sending Payment Request:", { student_id: studentIdString });
+      // Convert user ID to number
+      const studentId = Number(user.id);
 
       const response = await axios.post(
         "https://cgpacalculator-0ani.onrender.com/payment/payment/initiate",
-        { student_id: studentIdString },
+        { student_id: studentId },
         { headers: { "Content-Type": "application/json" } }
       );
 
-      // console.log("Payment API Response:", response.data);
-
       if (response.data && response.data.payment_link) {
-        toast.dismiss(); // Remove previous notifications
+        toast.dismiss();
         toast.success("Redirecting to Monnify...");
         window.location.href = response.data.payment_link;
       } else {
-        toast.dismiss(); // Remove previous notifications
+        toast.dismiss();
         toast.error("Failed to generate payment link! Please try again.");
       }
     } catch (error) {
-      // console.error("Payment error:", error.response ? error.response.data : error.message);
-      toast.dismiss(); // Remove previous notifications
+      toast.dismiss();
       toast.error("An error occurred while initiating payment. Please refresh and login again");
     } finally {
       setLoading(false);
@@ -54,17 +49,25 @@ const Payment = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 text-center">
-      <h2 className="text-2xl font-bold mb-4">Payment</h2>
-      <p>Hello, <strong>{user?.name}</strong>! Please complete your payment of <strong>500 Naira</strong>.</p>
-      <p>Click "Proceed to Payment" to be redirected to Monnify.</p>
-
+    <div className="container mx-auto p-6 text-center">
+      <h2 className="text-3xl font-bold mb-4 text-green-700">
+        Welcome to AI CGPA Calculator
+      </h2>
+      <p className="text-xl mb-2">
+        Hello, <strong>{user?.name}</strong>!
+      </p>
+      <p className="text-lg text-gray-700 mb-4">
+        Our AI-powered CGPA Calculator and Prediction tool is designed to help you track your academic performance and plan for your future. To unlock full features—including accurate CGPA predictions and personalized improvement suggestions—a fee of <strong>500 Naira</strong> is required.
+      </p>
+      <p className="text-base text-gray-600 mb-6 border-b border-gray-300 border-opacity-50 pb-2">
+        Investing in your education is the first step toward success. Complete your payment to access your personalized dashboard, receive tailored advice, and stay motivated on your journey to excellence!
+      </p>
       <button
         onClick={handlePayment}
-        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 w-full max-w-sm"
+        className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded w-full max-w-sm"
         disabled={loading}
       >
-        {loading ? "Processing..." : "Proceed to Payment"}
+        {loading ? "Processing Payment..." : "Proceed to Payment"}
       </button>
     </div>
   );
