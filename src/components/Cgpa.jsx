@@ -114,21 +114,26 @@ const CGPA = ({ semesters = [] }) => {
       </div>
 
       {prediction && (
-        <div className="mt-6 text-lg text-gray-800">
-          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2">
-            <strong>Current CGPA:</strong> {prediction.current_cgpa}
+        <div className="mt-6 text-lg">
+          {/* <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2 flex items-center">
+            <span className="text-green-600 font-bold mr-2 w-1/2 text-left">Current CGPA:</span>
+            <span className="text-gray-800 w-1/2 text-left">{prediction.current_cgpa}</span>
+          </p> */}
+          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2 flex items-center">
+            <span className="text-green-600 font-bold mr-2 w-1/2 text-left">Predicted Next CGPA:</span>
+            <span className="text-gray-800 w-1/2 text-left">{prediction.predicted_next_cgpa}</span>
           </p>
-          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2">
-            <strong>Predicted Next CGPA:</strong> {prediction.predicted_next_cgpa}
+          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2 flex items-center">
+            <span className="text-green-600 font-bold mr-2 w-1/2 text-left">Predicted Graduation Class:</span>
+            <span className="text-gray-800 w-1/2 text-left">{prediction.predicted_graduation_class}</span>
           </p>
-          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2">
-            <strong>Predicted Graduation Class:</strong> {prediction.predicted_graduation_class}
-          </p>
-          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2">
-            <strong>Improvement Suggestion:</strong> {prediction.improvement_suggestion}
+          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2 flex items-center">
+            <span className="text-green-600 font-bold mr-2 w-1/2 text-left">Improvement Suggestion:</span>
+            <span className="text-gray-800 w-1/2 text-left">{prediction.improvement_suggestion}</span>
           </p>
         </div>
       )}
+
 
       <button
         onClick={predictCGPA}
