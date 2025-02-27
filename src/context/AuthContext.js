@@ -16,11 +16,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("isPaid", status);
   };
 
-  // Function to fetch the user profile using the token
+  // Function to fetch the user profile using the token.
   const fetchUserProfile = useCallback(async () => {
     try {
       if (!token) return;
-      // For exempt users, skip fetching profile.
+      // Skip fetching if the user is exempt (we already know they are paid)
       if (
         user &&
         user.name &&
@@ -45,8 +45,6 @@ export const AuthProvider = ({ children }) => {
         "❌ Failed to fetch user profile:",
         error.response ? error.response.data : error.message
       );
-      // Optionally, you can log the user out if profile fetch fails:
-      // logoutUser();
     }
   }, [token, user]);
 
@@ -75,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [fetchUserProfile]);
 
-  // On mount, if a token exists, restore session from localStorage and rehydrate user details.
+  // On mount, if a token exists, restore session from localStorage.
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
@@ -156,7 +154,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         await checkPaymentStatus(loggedInUser.id);
       }
-      // Optionally, re-fetch updated profile to ensure current details (skip for exempt users)
+      // Optionally, re-fetch updated profile (skip for exempt users)
       if (
         !(
           loggedInUser.name.trim().toLowerCase() === "test student" &&
