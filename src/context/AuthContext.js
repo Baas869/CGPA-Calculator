@@ -1,28 +1,7 @@
-
-
-
-
-
-
-
-
-
-
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
 export const AuthContext = createContext();
-// Helper function to determine if a user is exempt from payment
-const isExemptUser = (userObj) => {
-  return (
-    userObj &&
-    userObj.name &&
-    userObj.level &&
-    userObj.name.trim().toLowerCase() === "test student" &&
-    userObj.level.trim() === "300"
-  );
-};
-
 
 export const AuthProvider = ({ children }) => {
   // User details stored in state
@@ -61,14 +40,8 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Updated checkPaymentStatus function: exempt users are marked as paid immediately.
+  // Check payment status using student ID by calling the dashboard endpoint.
   const checkPaymentStatus = useCallback(async (studentId) => {
-    // If the current user is exempt, skip the API call and mark as paid.
-    if (user && isExemptUser(user)) {
-      console.log("✅ Exempt user detected. Skipping payment check.");
-      updatePaymentStatus(true);
-      return;
-    }
     try {
       if (!studentId) return;
       console.log(`🔍 Checking payment status for student ID: ${studentId}`);
@@ -78,6 +51,7 @@ export const AuthProvider = ({ children }) => {
       if (response.data && response.data.status === "paid") {
         console.log("✅ Payment verified as PAID");
         updatePaymentStatus(true);
+        // Re-fetch updated user profile after successful payment
         await fetchUserProfile();
       } else {
         console.log("⚠️ Payment status:", response.data.status);
@@ -90,33 +64,7 @@ export const AuthProvider = ({ children }) => {
       );
       updatePaymentStatus(false);
     }
-  }, [fetchUserProfile, user]);
-
-  // // Check payment status using student ID by calling the dashboard endpoint.
-  // const checkPaymentStatus = useCallback(async (studentId) => {
-  //   try {
-  //     if (!studentId) return;
-  //     console.log(`🔍 Checking payment status for student ID: ${studentId}`);
-  //     const response = await axios.get(
-  //       `https://cgpacalculator-0ani.onrender.com/students/dashboard/?student_id=${studentId}`
-  //     );
-  //     if (response.data && response.data.status === "paid") {
-  //       console.log("✅ Payment verified as PAID");
-  //       updatePaymentStatus(true);
-  //       // Re-fetch updated user profile after successful payment
-  //       await fetchUserProfile();
-  //     } else {
-  //       console.log("⚠️ Payment status:", response.data.status);
-  //       updatePaymentStatus(false);
-  //     }
-  //   } catch (error) {
-  //     console.error(
-  //       "❌ Error checking payment status:",
-  //       error.response ? error.response.data : error.message
-  //     );
-  //     updatePaymentStatus(false);
-  //   }
-  // }, [fetchUserProfile]);
+  }, [fetchUserProfile]);
 
   // On mount, if a token exists, restore session from localStorage and rehydrate user details.
   useEffect(() => {
