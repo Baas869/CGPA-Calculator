@@ -21,13 +21,7 @@ export const AuthProvider = ({ children }) => {
     try {
       if (!token) return;
       // For exempt users, skip fetching profile.
-      if (
-        user &&
-        user.name &&
-        user.level &&
-        user.name.trim().toLowerCase() === "test student" &&
-        user.level.trim() === "300"
-      ) {
+      if (user && user.name && user.level && user.name.trim().toLowerCase() === "test student" && user.level.trim() === "300") {
         return;
       }
       const response = await axios.get(
@@ -45,7 +39,7 @@ export const AuthProvider = ({ children }) => {
         "❌ Failed to fetch user profile:",
         error.response ? error.response.data : error.message
       );
-      // Optionally, you can log the user out if profile fetch fails:
+      // Optionally logout the user if needed.
       // logoutUser();
     }
   }, [token, user]);
@@ -81,19 +75,9 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem("user");
     if (storedToken && storedUser) {
       setToken(storedToken);
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      // If the stored user is exempt, mark as paid immediately.
-      if (
-        parsedUser.name &&
-        parsedUser.level &&
-        parsedUser.name.trim().toLowerCase() === "test student" &&
-        parsedUser.level.trim() === "300"
-      ) {
-        updatePaymentStatus(true);
-      } else {
-        checkPaymentStatus(parsedUser.id);
-      }
+      setUser(JSON.parse(storedUser));
+      const storedStudentId = JSON.parse(storedUser).id;
+      checkPaymentStatus(storedStudentId);
     }
   }, [checkPaymentStatus]);
 
@@ -113,10 +97,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("studentId", registeredUser.id.toString());
       localStorage.setItem("user", JSON.stringify(newUser));
       // If the user is exempt, mark them as paid immediately.
-      if (
-        registeredUser.name.trim().toLowerCase() === "test student" &&
-        registeredUser.level.trim() === "300"
-      ) {
+      if (registeredUser.name.trim().toLowerCase() === "test student" && registeredUser.level.trim() === "300") {
         updatePaymentStatus(true);
       } else {
         await checkPaymentStatus(registeredUser.id);
@@ -148,21 +129,13 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("studentId", loggedInUser.id.toString());
       localStorage.setItem("user", JSON.stringify(newUser));
       // If the user is exempt, mark them as paid immediately.
-      if (
-        loggedInUser.name.trim().toLowerCase() === "test student" &&
-        loggedInUser.level.trim() === "300"
-      ) {
+      if (loggedInUser.name.trim().toLowerCase() === "test student" && loggedInUser.level.trim() === "300") {
         updatePaymentStatus(true);
       } else {
         await checkPaymentStatus(loggedInUser.id);
       }
       // Optionally, re-fetch updated profile to ensure current details (skip for exempt users)
-      if (
-        !(
-          loggedInUser.name.trim().toLowerCase() === "test student" &&
-          loggedInUser.level.trim() === "300"
-        )
-      ) {
+      if (!(loggedInUser.name.trim().toLowerCase() === "test student" && loggedInUser.level.trim() === "300")) {
         await fetchUserProfile();
       }
       return response.data;
