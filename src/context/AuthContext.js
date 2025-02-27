@@ -4,10 +4,10 @@ import axios from "axios";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // User details stored in state (will not be rehydrated on refresh)
+  // User details stored in state
   const [user, setUser] = useState(null);
   const [isPaid, setIsPaid] = useState(false);
-  // Token is persisted in localStorage
+  // Token persisted in localStorage
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   // Function to update payment status and persist it if needed
@@ -16,37 +16,26 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("isPaid", status);
   };
 
-  // Function to fetch the user profile using the token.
+  // Function to fetch the user profile using the token
   const fetchUserProfile = useCallback(async () => {
     try {
       if (!token) return;
-      // Skip fetching if the user is exempt (we already know they are paid)
-      if (
-        user &&
-        user.name &&
-        user.level &&
-        user.name.trim().toLowerCase() === "test student" &&
-        user.level.trim() === "300"
-      ) {
-        return;
-      }
       const response = await axios.get(
         "https://cgpacalculator-0ani.onrender.com/students/auth/profile",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data) {
         const student = response.data.student;
-        const updatedUser = { id: student.id, name: student.name, level: student.level };
+        const updatedUser = { id: student.id, name: student.name };
         setUser(updatedUser);
         localStorage.setItem("user", JSON.stringify(updatedUser));
       }
     } catch (error) {
-      console.error(
-        "❌ Failed to fetch user profile:",
-        error.response ? error.response.data : error.message
-      );
+      console.error("❌ Failed to fetch user profile:", error.response ? error.response.data : error.message);
+      // Optionally, you can log the user out if profile fetch fails:
+      // logoutUser();
     }
-  }, [token, user]);
+  }, [token]);
 
   // Check payment status using student ID by calling the dashboard endpoint.
   const checkPaymentStatus = useCallback(async (studentId) => {
@@ -59,6 +48,7 @@ export const AuthProvider = ({ children }) => {
       if (response.data && response.data.status === "paid") {
         console.log("✅ Payment verified as PAID");
         updatePaymentStatus(true);
+        // Re-fetch updated user profile after successful payment
         await fetchUserProfile();
       } else {
         console.log("⚠️ Payment status:", response.data.status);
@@ -73,29 +63,19 @@ export const AuthProvider = ({ children }) => {
     }
   }, [fetchUserProfile]);
 
-  // On mount, if a token exists, restore session from localStorage.
+  // On mount, if a token exists, restore session from localStorage and rehydrate user details.
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
     if (storedToken && storedUser) {
       setToken(storedToken);
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      // If the stored user is exempt, mark as paid immediately.
-      if (
-        parsedUser.name &&
-        parsedUser.level &&
-        parsedUser.name.trim().toLowerCase() === "test student" &&
-        parsedUser.level.trim() === "300"
-      ) {
-        updatePaymentStatus(true);
-      } else {
-        checkPaymentStatus(parsedUser.id);
-      }
+      setUser(JSON.parse(storedUser));
+      const storedStudentId = JSON.parse(storedUser).id;
+      checkPaymentStatus(storedStudentId);
     }
   }, [checkPaymentStatus]);
 
-  // Register user and automatically log them in.
+  // Register user and automatically log them in
   const registerUser = async (userData) => {
     try {
       const response = await axios.post(
@@ -104,21 +84,13 @@ export const AuthProvider = ({ children }) => {
         { headers: { "Content-Type": "application/json" } }
       );
       const { student: registeredUser, token } = response.data;
-      const newUser = { id: registeredUser.id, name: registeredUser.name, level: registeredUser.level };
+      const newUser = { id: registeredUser.id, name: registeredUser.name };
       setUser(newUser);
       setToken(token);
       localStorage.setItem("token", token);
       localStorage.setItem("studentId", registeredUser.id.toString());
       localStorage.setItem("user", JSON.stringify(newUser));
-      // If the user is exempt, mark them as paid immediately.
-      if (
-        registeredUser.name.trim().toLowerCase() === "test student" &&
-        registeredUser.level.trim() === "300"
-      ) {
-        updatePaymentStatus(true);
-      } else {
-        await checkPaymentStatus(registeredUser.id);
-      }
+      await checkPaymentStatus(registeredUser.id);
       return response.data;
     } catch (error) {
       console.error("❌ Registration error:", error);
@@ -139,30 +111,15 @@ export const AuthProvider = ({ children }) => {
         throw new Error("❌ Invalid login response: Missing student data or session token");
       }
       const { student: loggedInUser, session_token } = response.data;
-      const newUser = { id: loggedInUser.id, name: loggedInUser.name, level: loggedInUser.level };
+      const newUser = { id: loggedInUser.id, name: loggedInUser.name };
       setUser(newUser);
       setToken(session_token);
       localStorage.setItem("token", session_token);
       localStorage.setItem("studentId", loggedInUser.id.toString());
       localStorage.setItem("user", JSON.stringify(newUser));
-      // If the user is exempt, mark them as paid immediately.
-      if (
-        loggedInUser.name.trim().toLowerCase() === "test student" &&
-        loggedInUser.level.trim() === "300"
-      ) {
-        updatePaymentStatus(true);
-      } else {
-        await checkPaymentStatus(loggedInUser.id);
-      }
-      // Optionally, re-fetch updated profile (skip for exempt users)
-      if (
-        !(
-          loggedInUser.name.trim().toLowerCase() === "test student" &&
-          loggedInUser.level.trim() === "300"
-        )
-      ) {
-        await fetchUserProfile();
-      }
+      await checkPaymentStatus(loggedInUser.id);
+      // Optionally, re-fetch updated profile to ensure current details:
+      await fetchUserProfile();
       return response.data;
     } catch (error) {
       console.error("❌ Login error:", error);
