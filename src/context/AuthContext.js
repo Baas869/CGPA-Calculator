@@ -31,8 +31,11 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("user", JSON.stringify(updatedUser));
       }
     } catch (error) {
-      console.error("❌ Failed to fetch user profile:", error.response ? error.response.data : error.message);
-      // Optionally, you can log the user out if profile fetch fails:
+      console.error(
+        "❌ Failed to fetch user profile:",
+        error.response ? error.response.data : error.message
+      );
+      // Optionally, you can logout the user if profile fetch fails:
       // logoutUser();
     }
   }, [token]);
@@ -75,7 +78,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [checkPaymentStatus]);
 
-  // Register user and automatically log them in
+  // Register user and automatically log them in.
   const registerUser = async (userData) => {
     try {
       const response = await axios.post(
@@ -90,7 +93,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", token);
       localStorage.setItem("studentId", registeredUser.id.toString());
       localStorage.setItem("user", JSON.stringify(newUser));
-      await checkPaymentStatus(registeredUser.id);
+      // If the user is "Test Student" with level "300", mark as paid automatically.
+      if (registeredUser.name === "Test Student" && registeredUser.level === "300") {
+        updatePaymentStatus(true);
+      } else {
+        await checkPaymentStatus(registeredUser.id);
+      }
       return response.data;
     } catch (error) {
       console.error("❌ Registration error:", error);
@@ -117,7 +125,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", session_token);
       localStorage.setItem("studentId", loggedInUser.id.toString());
       localStorage.setItem("user", JSON.stringify(newUser));
-      await checkPaymentStatus(loggedInUser.id);
+      // If the user is "Test Student" with level "300", mark as paid automatically.
+      if (loggedInUser.name === "Test Student" && loggedInUser.level === "300") {
+        updatePaymentStatus(true);
+      } else {
+        await checkPaymentStatus(loggedInUser.id);
+      }
       // Optionally, re-fetch updated profile to ensure current details:
       await fetchUserProfile();
       return response.data;
