@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("isPaid", status);
   };
 
-  // Function to fetch the user profile using the token.
+  // Function to fetch the user profile using the token
   const fetchUserProfile = useCallback(async () => {
     try {
       if (!token) return;
@@ -31,17 +31,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("user", JSON.stringify(updatedUser));
       }
     } catch (error) {
-      // If the error is 404, simply log a warning and do not logout.
-      if (error.response && error.response.status === 404) {
-        console.warn("Profile not found, keeping existing session.");
-      } else {
-        console.error(
-          "❌ Failed to fetch user profile:",
-          error.response ? error.response.data : error.message
-        );
-        // Optionally, you could logout the user here if desired.
-        // logoutUser();
-      }
+      console.error("❌ Failed to fetch user profile:", error.response ? error.response.data : error.message);
+      // Optionally, you can log the user out if profile fetch fails:
+      // logoutUser();
     }
   }, [token]);
 
@@ -83,7 +75,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [checkPaymentStatus]);
 
-  // Register user and automatically log them in.
+  // Register user and automatically log them in
   const registerUser = async (userData) => {
     try {
       const response = await axios.post(
@@ -106,7 +98,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login user and store token and student details in localStorage.
+  // Login user and store token and user details in localStorage.
   const loginUser = async (credentials) => {
     try {
       const response = await axios.post(
@@ -126,6 +118,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("studentId", loggedInUser.id.toString());
       localStorage.setItem("user", JSON.stringify(newUser));
       await checkPaymentStatus(loggedInUser.id);
+      // Optionally, re-fetch updated profile to ensure current details:
       await fetchUserProfile();
       return response.data;
     } catch (error) {
