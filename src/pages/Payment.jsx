@@ -6,11 +6,26 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Payment = () => {
-  const { user } = useContext(AuthContext);
+  const { user, setIsPaid } = useContext(AuthContext);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const handlePayment = async () => {
+    // Exemption check: if user is "Test Student" with level "300"
+    if (
+      user &&
+      user.name &&
+      user.level &&
+      user.name.trim().toLowerCase() === "test student" &&
+      user.level.trim() === "300"
+    ) {
+      toast.dismiss();
+      toast.success("You are exempt from payment! Redirecting to dashboard...");
+      setIsPaid(true);
+      setTimeout(() => navigate("/dashboard"), 2000);
+      return;
+    }
+
     try {
       if (!user || !user.id) {
         toast.dismiss();
@@ -23,7 +38,7 @@ const Payment = () => {
       toast.dismiss();
       toast.info("Generating your payment link...");
 
-      // Convert user ID to number
+      // Convert user ID to a number
       const studentId = Number(user.id);
 
       const response = await axios.post(
@@ -41,8 +56,9 @@ const Payment = () => {
         toast.error("Failed to generate payment link! Please try again.");
       }
     } catch (error) {
+      console.error("Payment error:", error.response ? error.response.data : error.message);
       toast.dismiss();
-      toast.error("An error occurred while initiating payment. Please refresh and login again");
+      toast.error("An error occurred while initiating payment. Please refresh and log in again.");
     } finally {
       setLoading(false);
     }
