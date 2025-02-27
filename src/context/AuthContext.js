@@ -3,6 +3,16 @@ import axios from "axios";
 
 export const AuthContext = createContext();
 
+const isExemptUser = (userObj) => {
+  return (
+    userObj &&
+    userObj.name &&
+    userObj.level &&
+    userObj.name.trim().toLowerCase() === "test student" &&
+    userObj.level.trim() === "300"
+  );
+};
+
 export const AuthProvider = ({ children }) => {
   // User details stored in state (will not be rehydrated on refresh)
   const [user, setUser] = useState(null);
@@ -16,25 +26,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("isPaid", status);
   };
 
-  // Helper: Check if user is exempt (Test Student at level 300)
-  const isExemptUser = (userObj) => {
-    return (
-      userObj &&
-      userObj.name &&
-      userObj.level &&
-      userObj.name.trim().toLowerCase() === "test student" &&
-      userObj.level.trim() === "300"
-    );
-  };
-
   // Function to fetch the user profile using the token
   const fetchUserProfile = useCallback(async () => {
     try {
       if (!token) return;
-      // For exempt users, skip fetching profile.
-      if (user && isExemptUser(user)) {
-        return;
-      }
+      // If the current user is exempt, skip profile fetch.
+      if (user && isExemptUser(user)) return;
       const response = await axios.get(
         "https://cgpacalculator-0ani.onrender.com/students/auth/profile",
         { headers: { Authorization: `Bearer ${token}` } }
@@ -50,23 +47,21 @@ export const AuthProvider = ({ children }) => {
         "❌ Failed to fetch user profile:",
         error.response ? error.response.data : error.message
       );
-      // Optionally, you can log the user out if profile fetch fails.
+      // Optionally, you can logout the user if profile fetch fails.
       // logoutUser();
     }
   }, [token, user]);
 
   // Check payment status using student ID by calling the dashboard endpoint.
   const checkPaymentStatus = useCallback(async (studentId) => {
+    // For exempt users, skip payment check.
+    if (user && isExemptUser(user)) {
+      console.log("✅ Exempt user detected. Skipping payment check.");
+      updatePaymentStatus(true);
+      return;
+    }
     try {
       if (!studentId) return;
-      
-      // If the current user is exempt, skip the API call and mark as paid.
-      if (user && isExemptUser(user)) {
-        console.log("✅ Exempt user detected. Marking payment as PAID.");
-        updatePaymentStatus(true);
-        return;
-      }
-      
       console.log(`🔍 Checking payment status for student ID: ${studentId}`);
       const response = await axios.get(
         `https://cgpacalculator-0ani.onrender.com/students/dashboard/?student_id=${studentId}`
@@ -120,7 +115,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", token);
       localStorage.setItem("studentId", registeredUser.id.toString());
       localStorage.setItem("user", JSON.stringify(newUser));
-      // If the user is exempt, mark them as paid immediately.
+      // Exempt user: if name is "Test Student" and level is "300", mark as paid immediately.
       if (isExemptUser(registeredUser)) {
         updatePaymentStatus(true);
       } else {
@@ -152,13 +147,13 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", session_token);
       localStorage.setItem("studentId", loggedInUser.id.toString());
       localStorage.setItem("user", JSON.stringify(newUser));
-      // If the user is exempt, mark them as paid immediately.
+      // Exempt user: mark as paid immediately.
       if (isExemptUser(loggedInUser)) {
         updatePaymentStatus(true);
       } else {
         await checkPaymentStatus(loggedInUser.id);
       }
-      // Optionally, re-fetch updated profile to ensure current details (skip for exempt users)
+      // Optionally, re-fetch updated profile (skip for exempt users)
       if (!isExemptUser(loggedInUser)) {
         await fetchUserProfile();
       }
