@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Spiner from "./share/Spiner";
 
 const PaymentStatus = () => {
   const { user, setUser, setIsPaid } = useContext(AuthContext);
@@ -35,20 +36,14 @@ const PaymentStatus = () => {
 
     const verifyPaymentStatus = async () => {
       try {
-        // toast.dismiss();
-        // toast.info("⏳ Waiting 5 seconds for payment processing...");
         // Wait 5 seconds before the check
         await new Promise((resolve) => setTimeout(resolve, 5000));
 
-        // console.log("🛠️ Checking Payment Reference:", transactionReference);
-
         // Construct API request URL using the new endpoint format
         const requestUrl = `https://cgpacalculator-0ani.onrender.com/payment/payment/verify/${encodeURIComponent(transactionReference)}`;
-        // console.log("🔍 Sending GET Request:", requestUrl);
 
         // Send GET request to verify payment status
         const response = await axios.get(requestUrl);
-        // console.log("✅ Payment API Response:", response.data);
 
         if (response.data && response.data.message) {
           const msg = response.data.message;
@@ -70,7 +65,6 @@ const PaymentStatus = () => {
           throw new Error("Invalid response from server.");
         }
       } catch (error) {
-        // console.error("Payment Status Error:", error);
         toast.dismiss();
         toast.error("An error occurred while verifying payment. Please try again.");
         setTimeout(() => navigate("/payment"), 3000);
@@ -84,6 +78,11 @@ const PaymentStatus = () => {
 
   return (
     <div className="container mx-auto p-4 text-center">
+      {loading && (
+        <div className="flex justify-center mb-4">
+          <Spiner />
+        </div>
+      )}
       <h2 className="text-2xl font-bold mb-4">Verifying Payment...</h2>
       {loading ? (
         <p>Please wait while we verify your payment.</p>

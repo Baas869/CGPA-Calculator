@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Spiner from "../components/share/Spiner";
 
 const Payment = () => {
   const { user, setIsPaid } = useContext(AuthContext);
@@ -78,13 +79,20 @@ const Payment = () => {
       <p className="text-base text-gray-600 mb-6 border-b border-gray-300 border-opacity-50 pb-2">
         Investing in your education is the first step toward success. Complete your payment to access your personalized dashboard, receive tailored advice, and stay motivated on your journey to excellence!
       </p>
-      <button
-        onClick={handlePayment}
-        className="bg-btn-primary-color hover:bg-btn-hover-color text-primary-color font-bold py-3 px-6 rounded w-full max-w-sm"
-        disabled={loading}
-      >
-        {loading ? "Processing Payment..." : "Proceed to Payment"}
-      </button>
+      <div className="flex flex-col items-center">
+        <button
+          onClick={handlePayment}
+          className="bg-btn-primary-color hover:bg-btn-hover-color text-primary-color font-bold py-3 px-6 rounded w-full max-w-sm"
+          disabled={loading}
+        >
+          {loading ? "Processing Payment..." : "Proceed to Payment"}
+        </button>
+        {loading && (
+          <div className="mt-2">
+            <Spiner />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -3,12 +3,14 @@ import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Spiner from "../components/share/Spiner";
 
 const Register = () => {
   const { registerUser } = useContext(AuthContext);
   const [formData, setFormData] = useState({ name: "", level: "" });
   const navigate = useNavigate();
   const { name, level } = formData;
+  const [loading, setLoading] = useState(false); // Added loading state
 
   // If the user is "Test Student" with level "300", inform them they're exempt from payment.
   useEffect(() => {
@@ -26,6 +28,7 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when registration starts
     try {
       await registerUser(formData);
       toast.dismiss();
@@ -46,6 +49,8 @@ const Register = () => {
       } else {
         toast.error("Registration failed. Please try again.");
       }
+    } finally {
+      setLoading(false); // Set loading to false when registration completes
     }
   };
 
@@ -73,9 +78,15 @@ const Register = () => {
           <button
             type="submit"
             className="w-full max-w-md bg-btn-primary-color hover:bg-btn-hover-color text-white font-bold py-2 px-4 rounded"
+            disabled={loading}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
+          {loading && (
+            <div className="flex justify-center mt-2">
+              <Spiner />
+            </div>
+          )}
         </form>
         <p className="mt-4 text-center">
           Already have an account?{" "}

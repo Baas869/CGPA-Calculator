@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Spinner from "../components/share/Spiner"; 
 
 const Login = () => {
   const [formData, setFormData] = useState({ name: "", level: "" });
@@ -101,6 +102,11 @@ const Login = () => {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+          {loading && (
+            <div className="flex justify-center mt-2">
+              <Spinner />
+            </div>
+          )}
         </form>
         <p className="mt-4 text-center">
           Don't have an account?{" "}

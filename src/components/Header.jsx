@@ -117,7 +117,7 @@ const Header = () => {
               {[
                 { name: "Home", path: "/" },
                 { name: "About", path: "/about" },
-                { name: "Features", path: "/features" },
+                { name: "Features", path: "/dashboard" },
                 { name: "Team", path: "/team" },
                 { name: "Contact", path: "/contact" },
               ].map(({ name, path }) => (
