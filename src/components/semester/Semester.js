@@ -29,7 +29,7 @@ function Semester(props) {
     return (
         <div className='flex flex-col'>
             {/* Title */}
-            <div className='flex pb-4 text-[#00cc66]'>
+            <div className='flex pb-4 text-primary-color'>
                 <span className='font-bold mr-auto' style={{ color: 'rgb(3,4,94)' }}>Semester {props.id + 1}</span>
                 <span className='font-bold'>Semester GPA: {calculateGPA(props.courses)}</span>
             </div>

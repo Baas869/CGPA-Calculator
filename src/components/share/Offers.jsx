@@ -90,7 +90,7 @@ function Offers() {
             Your account is currently disabled until you complete your payment.
           </span>
           <button
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded"
+            className="bg-btn-primary-color hover:bg-btn-hover-color text-white font-bold py-1 px-3 rounded"
             onClick={() => navigate("/payment")}
           >
             Make Payment
@@ -99,7 +99,7 @@ function Offers() {
       )}
 
       <div className="content flex flex-col grow p-3 px-7 gap-1">
-        <span className="content__header mb-2 border-b-4 border-[#00cc66] self-start pb-3">
+        <span className="content__header mb-2 border-b-4 border-btn-primary-color self-start pb-3">
           GPA CALCULATOR
         </span>
 
@@ -111,7 +111,7 @@ function Offers() {
             <span className="mb-4">
               <span>Units Total: {results.totalUnits}</span>
             </span>
-            <button className="bg-[#00cc66] p-3 rounded text-white" onClick={handleViewAnalysis}>
+            <button className="bg-btn-primary-color hover:bg-btn-hover-color p-3 rounded text-primary-color" onClick={handleViewAnalysis}>
               Use AI Predictor
             </button>
           </div>
@@ -130,7 +130,7 @@ function Offers() {
             ))}
           </div>
           <button
-            className="ml-auto rounded border p-2 bg-[#00cc66] text-white"
+            className="ml-auto rounded border p-2 bg-btn-primary-color text-primary-color"
             onClick={addSemester}
           >
             Add Semester +

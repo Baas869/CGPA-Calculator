@@ -53,7 +53,7 @@ const Dashboard = () => {
               </p>
               <button
                 onClick={() => navigate(`/payment${location.search}`)}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4"
+                className="bg-btn-primary-color hover:bg-btn-hover-color text-white font-bold py-2 px-4 rounded mt-4"
               >
                 Proceed to Payment
               </button>
