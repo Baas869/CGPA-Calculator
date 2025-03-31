@@ -91,20 +91,20 @@ const CGPA = ({ semesters = [] }) => {
 
   return (
     <div className="mt-6 p-6 border rounded-lg bg-green-50 shadow-lg text-center">
-      <h2 className="text-3xl font-extrabold text-green-700 mb-4">AI CGPA Predictor</h2>
+      <h2 className="text-3xl font-extrabold text-link-primary-color mb-4">AI CGPA Predictor</h2>
       <p className="text-lg text-gray-700 mb-4">
         Unlock your academic potential with our AI-powered CGPA Predictor. Simply enter the number of years in your course and let our tool analyze your past semester performance to provide a personalized CGPA prediction, graduation class, and improvement suggestions.
       </p>
 
       {/* Input for number of years in the course */}
       <div className="my-4">
-        <label htmlFor="yearsCourse" className="block font-bold text-green-800 mb-2">
+        <label htmlFor="yearsCourse" className="block font-bold text-primary-color mb-2">
           Enter number of years in your course:
         </label>
         <input
           type="number"
           id="yearsCourse"
-          className="border border-green-300 p-2 rounded w-full max-w-xs mx-auto focus:outline-none focus:ring-2 focus:ring-green-400"
+          className="border border-link-primary-color p-2 rounded w-full max-w-xs mx-auto focus:outline-none focus:ring-2 focus:ring-link-primary-color"
           placeholder="e.g., 4"
           value={yearsCourse}
           onChange={handleYearsCourseChange}
@@ -116,23 +116,23 @@ const CGPA = ({ semesters = [] }) => {
       {prediction && (
         <div className="mt-6 text-lg">
           <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2 flex flex-col md:flex-row">
-            <span className="text-green-600 font-bold mr-0 md:mr-2 w-full md:w-1/2 text-left">
+            <span className="text-primary-color font-bold mr-0 md:mr-2 w-full md:w-1/2 text-left">
               Predicted Next CGPA:
             </span>
             <span className="text-gray-800 w-full md:w-1/2 text-left">
               {prediction.predicted_next_cgpa}
             </span>
           </p>
-          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2 flex flex-col md:flex-row">
-            <span className="text-green-600 font-bold mr-0 md:mr-2 w-full md:w-1/2 text-left">
+          <p className="border-b border-link-primary-color border-opacity-50 pb-2 mb-2 flex flex-col md:flex-row">
+            <span className="text-primary-color font-bold mr-0 md:mr-2 w-full md:w-1/2 text-left">
               Predicted Graduation Class:
             </span>
             <span className="text-gray-800 w-full md:w-1/2 text-left">
               {prediction.predicted_graduation_class}
             </span>
           </p>
-          <p className="border-b border-gray-300 border-opacity-50 pb-2 mb-2 flex flex-col md:flex-row">
-            <span className="text-green-600 font-bold mr-0 md:mr-2 w-full md:w-1/2 text-left">
+          <p className="border-b border-link-primary-color border-opacity-50 pb-2 mb-2 flex flex-col md:flex-row">
+            <span className="text-primary-color font-bold mr-0 md:mr-2 w-full md:w-1/2 text-left">
               Improvement Suggestion:
             </span>
             <span className="text-gray-800 w-full md:w-1/2 text-left">

@@ -66,8 +66,8 @@ const Payment = () => {
 
   return (
     <div className="container mx-auto p-6 text-center">
-      <h2 className="text-3xl font-bold mb-4 text-green-700">
-        Welcome to AI CGPA Calculator
+      <h2 className="text-3xl font-bold mb-4 text-primary-color">
+        Welcome to <span className='text-link-primary-color'>AI CGPA Calculator</span>
       </h2>
       <p className="text-xl mb-2">
         Hello, <strong>{user?.name}</strong>!
@@ -80,7 +80,7 @@ const Payment = () => {
       </p>
       <button
         onClick={handlePayment}
-        className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded w-full max-w-sm"
+        className="bg-btn-primary-color hover:bg-btn-hover-color text-primary-color font-bold py-3 px-6 rounded w-full max-w-sm"
         disabled={loading}
       >
         {loading ? "Processing Payment..." : "Proceed to Payment"}
